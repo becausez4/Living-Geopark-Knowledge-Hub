@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Living Geopark Knowledge Hub</title>
+<!-- นำเข้า Leaflet CSS สำหรับแผนที่เกม 4 และ เกม 5 -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- นำเข้า Leaflet JS สำหรับแผนที่เกม 4 และ เกม 5 -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=Sarabun:wght@400;500;600&family=Noto+Sans+SC:wght@500;700&display=swap');
+
+:root{
+  --cave-deep:#0B3538; --cave-mid:#12514F; --limestone:#F3EAD6; --limestone-dark:#E4D6B4;
+  --fossil-amber:#D9A441; --sea-turquoise:#3FBFB5; --coral:#E8654B; --ink:#153331; --ink-soft:#3E5A56;
+  --sea-blue-light:#BFE3EE;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  min-height:100vh;
+  background:radial-gradient(ellipse at 20% -10%, rgba(63,191,181,0.25), transparent 55%),
+    radial-gradient(ellipse at 90% 110%, rgba(217,164,65,0.18), transparent 50%),
+    linear-gradient(180deg, var(--cave-deep) 0%, #082A2C 100%);
+  font-family:'Sarabun','Noto Sans SC', sans-serif;
+  color:var(--ink); display:flex; align-items:flex-start; justify-content:center; padding:24px 14px; overflow-x:hidden;
+}
+.stage{width:100%; max-width:640px; position:relative;}
+.arch-frame{position:relative; background:var(--limestone); border-radius:28px 28px 18px 18px; box-shadow:0 22px 50px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.4); padding:26px 22px 22px; overflow:hidden;}
+.stalactites{position:absolute; top:0; left:0; right:0; height:22px; display:flex; justify-content:space-between; padding:0 6px; pointer-events:none;}
+.stalactites span{width:14px; background:var(--cave-mid); border-radius:0 0 8px 8px; opacity:.85;}
+.stalactites span:nth-child(odd){height:16px;} .stalactites span:nth-child(even){height:10px;}
+h1,h2,h3{font-family:'Kanit','Noto Sans SC',sans-serif; margin:0;}
+
+.lang-bar{display:flex; justify-content:flex-end; gap:6px; margin-bottom:10px;}
+.lang-btn{font-family:'Kanit',sans-serif; font-size:12px; font-weight:600; padding:6px 11px; border-radius:999px; border:1.5px solid var(--limestone-dark); background:#fff; color:var(--ink-soft); cursor:pointer;}
+.lang-btn.active{background:var(--cave-deep); color:var(--fossil-amber); border-color:var(--cave-deep);}
+
+.brand{text-align:center; margin-bottom:6px;}
+.brand .eyebrow{font-family:'Kanit',sans-serif; font-size:12px; letter-spacing:1.3px; color:var(--sea-turquoise); background:var(--cave-deep); display:inline-block; padding:5px 14px; border-radius:999px; margin-bottom:10px;}
+.brand h1{font-size:24px; color:var(--ink); line-height:1.25;}
+.brand h1 .hi{color:var(--coral);}
+.brand p{font-size:14px; color:var(--ink-soft); margin-top:6px;}
+.field-label{font-family:'Kanit',sans-serif; font-size:14px; font-weight:600; color:var(--ink); margin:16px 0 8px;}
+input[type="text"]{width:100%; padding:13px 16px; border-radius:14px; border:2px solid var(--limestone-dark); background:#fff; font-family:'Sarabun',sans-serif; font-size:16px; color:var(--ink); outline:none;}
+input[type="text"]:focus{border-color:var(--sea-turquoise);}
+.avatar-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-top:6px;}
+.avatar-btn{background:#fff; border:2px solid var(--limestone-dark); border-radius:16px; padding:9px 3px 7px; cursor:pointer; text-align:center; transition:transform .12s; font-family:'Kanit',sans-serif;}
+.avatar-btn .emoji{font-size:23px; display:block;}
+.avatar-btn .name{font-size:10px; color:var(--ink-soft); margin-top:3px; display:block; line-height:1.2;}
+.avatar-btn:hover{transform:translateY(-2px);}
+.avatar-btn.selected{border-color:var(--coral); background:#FFF1EC;}
+.welcome-back{margin-top:14px; background:#EAF6F4; border:1.5px dashed var(--sea-turquoise); border-radius:14px; padding:12px 14px; font-size:13px; color:var(--ink-soft); display:none;}
+.welcome-back b{color:var(--ink);}
+.btn{font-family:'Kanit','Noto Sans SC',sans-serif; font-weight:700; font-size:16px; border:none; border-radius:16px; padding:14px 18px; cursor:pointer; width:100%;}
+.btn:active{transform:scale(.98);}
+.btn-primary{background:linear-gradient(135deg, var(--fossil-amber), #C98A2E); color:#3A2400; box-shadow:0 8px 18px rgba(217,164,65,.4); margin-top:18px;}
+.btn-primary:disabled{opacity:.45; cursor:not-allowed; box-shadow:none;}
+.btn-ghost{background:transparent; color:var(--cave-mid); border:2px solid var(--cave-mid); margin-top:10px;}
+.btn-sm{width:auto; padding:10px 16px; font-size:14px; border-radius:12px;}
+
+.hub-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+.hub-player{display:flex; align-items:center; gap:8px;}
+.hub-player .av{font-size:26px;}
+.hub-player .nm{font-family:'Kanit',sans-serif; font-weight:600; font-size:15px; color:var(--ink);}
+.hub-player .tot{font-size:11.5px; color:var(--ink-soft);}
+.icon-btn{background:var(--limestone-dark); border:none; border-radius:12px; padding:8px 10px; font-size:13px; cursor:pointer; font-family:'Kanit',sans-serif; color:var(--ink);}
+.game-grid{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+.game-card{display:flex; align-items:center; gap:14px; background:#fff; border:2px solid var(--limestone-dark); border-radius:18px; padding:14px 14px; cursor:pointer;}
+.game-card:hover{border-color:var(--sea-turquoise);}
+.game-card .gicon{font-size:32px; width:48px; text-align:center; flex-shrink:0;}
+.game-card .gbody{flex:1;}
+.game-card .gtitle{font-family:'Kanit',sans-serif; font-weight:700; font-size:15.5px; color:var(--ink);}
+.game-card .gdesc{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+.game-card .gbest{font-family:'Kanit',sans-serif; font-size:12px; color:var(--fossil-amber); font-weight:700; margin-top:4px;}
+.game-card .garrow{font-size:20px; color:var(--cave-mid); flex-shrink:0;}
+
+.clue-box{background:#fff; border-radius:14px; padding:14px 16px; margin-top:12px; font-size:14.5px; line-height:1.6; color:var(--ink); border:2px solid var(--limestone-dark);}
+.clue-box b{color:var(--coral);}
+.clue-art{width:100%; height:180px; border-radius:12px; margin-top:12px; display:block; overflow:hidden;}
+.clue-art img {width:100%; height:100%; object-fit:cover;}
+.confirm-box{margin-top:12px; background:#fff; border:2px solid var(--coral); border-radius:14px; padding:14px; display:none; z-index: 100; position: relative;}
+.confirm-box p{margin:0 0 10px; font-family:'Kanit','Noto Sans SC',sans-serif; font-weight:600; font-size:14.5px; color:var(--ink);}
+.confirm-row{display:flex; gap:8px;}
+.confirm-row .btn{margin-top:0;}
+
+.hud{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+.hud-chip{font-family:'Kanit',sans-serif; font-size:13px; font-weight:600; background:var(--cave-deep); color:var(--fossil-amber); padding:6px 12px; border-radius:999px;}
+
+.timer-ring{width:42px;height:42px; position:relative;}
+.timer-ring svg{transform:rotate(-90deg);}
+.timer-ring circle{fill:none; stroke-width:5;}
+.timer-bg{stroke:var(--limestone-dark);}
+.timer-fg{stroke:var(--coral); stroke-linecap:round; transition:stroke-dashoffset 1s linear;}
+.timer-num{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Kanit',sans-serif; font-weight:700; font-size:14px; color:var(--ink);}
+.river-wrap{margin:16px 0 4px; position:relative;}
+.river-track{height:10px; border-radius:999px; background:var(--limestone-dark); position:relative;}
+.river-fill{height:100%; border-radius:999px; background:linear-gradient(90deg, var(--sea-turquoise), var(--cave-mid)); width:0%; transition:width .5s ease;}
+.kayak{position:absolute; top:-13px; left:0%; font-size:22px; transform:translateX(-50%); transition:left .5s ease;}
+.river-meta{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); margin-top:8px; font-family:'Kanit',sans-serif;}
+.question-card{background:#fff; border-radius:18px; padding:18px 18px 6px; margin-top:14px;}
+.q-tag{font-family:'Kanit',sans-serif; font-size:11.5px; color:var(--sea-turquoise); font-weight:600;}
+.q-text{font-family:'Kanit','Noto Sans SC',sans-serif; font-size:17.5px; font-weight:600; color:var(--ink); margin-top:6px; line-height:1.4;}
+.choices{margin-top:16px; display:flex; flex-direction:column; gap:10px;}
+.choice-btn{text-align:left; background:var(--limestone); border:2px solid var(--limestone-dark); border-radius:14px; padding:13px 15px; font-family:'Sarabun',sans-serif; font-size:15px; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:10px;}
+.choice-btn .letter{font-family:'Kanit',sans-serif; font-weight:700; font-size:13px; background:var(--cave-mid); color:#fff; width:24px;height:24px; border-radius:8px; display:flex;align-items:center;justify-content:center; flex-shrink:0;}
+.choice-btn:disabled{cursor:default;}
+.choice-btn.correct{background:#E4F5E7; border-color:#3FA65C;}
+.choice-btn.correct .letter{background:#3FA65C;}
+.choice-btn.wrong{background:#FBE7E3; border-color:var(--coral);}
+.choice-btn.wrong .letter{background:var(--coral);}
+.fact-box{margin-top:16px; background:var(--cave-deep); color:var(--limestone); border-radius:14px; padding:14px 16px; font-size:13.5px; line-height:1.6; display:none;}
+.fact-box b{color:var(--fossil-amber);}
+.next-wrap{margin-top:16px; display:none;}
+
+.survey-q{margin-top:18px;}
+.survey-q .qlabel{font-family:'Kanit','Noto Sans SC',sans-serif; font-weight:600; font-size:14.5px; color:var(--ink); margin-bottom:9px; line-height:1.4;}
+.rating-row{display:flex; gap:7px;}
+.rating-btn{flex:1; aspect-ratio:1/1; border-radius:12px; border:2px solid var(--limestone-dark); background:#fff; font-family:'Kanit',sans-serif; font-weight:700; font-size:15px; color:var(--ink-soft); cursor:pointer;}
+.rating-btn.selected{background:linear-gradient(135deg, var(--fossil-amber), #C98A2E); color:#3A2400; border-color:var(--fossil-amber);}
+.rating-scale-labels{display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink-soft); margin-top:5px; font-family:'Sarabun',sans-serif;}
+
+.all-stamps-overlay{position:fixed; inset:0; background:rgba(11,53,56,0.78); display:none; align-items:center; justify-content:center; z-index:999; padding:20px;}
+.all-stamps-overlay.show{display:flex;}
+.all-stamps-card{background:var(--limestone); border-radius:26px; padding:34px 24px 26px; max-width:380px; width:100%; text-align:center; box-shadow:0 25px 60px rgba(0,0,0,.5); position:relative; overflow:hidden; animation:popIn .4s ease;}
+@keyframes popIn{from{transform:scale(.8); opacity:0;} to{transform:scale(1); opacity:1;}}
+.all-stamps-card .confetti{position:absolute; font-size:22px; opacity:.9;}
+.all-stamps-emoji{font-size:56px; line-height:1;}
+.all-stamps-card h2{font-family:'Kanit',sans-serif; font-size:21px; color:var(--ink); margin-top:12px;}
+.all-stamps-card p{font-size:13.5px; color:var(--ink-soft); margin-top:8px; line-height:1.6;}
+.all-stamps-row{display:flex; justify-content:center; gap:7px; margin-top:18px; font-size:24px;}
+.all-stamps-card .btn{margin-top:22px;}
+
+.stamp-section{margin-top:22px; background:#fff; border:2px solid var(--limestone-dark); border-radius:18px; padding:14px 14px 16px;}
+.stamp-header{display:flex; align-items:center; justify-content:space-between;}
+.stamp-header h3{font-family:'Kanit',sans-serif; font-size:15px; color:var(--ink); margin:0;}
+.stamp-header .scount{font-family:'Kanit',sans-serif; font-size:12.5px; font-weight:700; color:var(--fossil-amber); background:var(--cave-deep); padding:4px 10px; border-radius:999px;}
+.stamp-hint{font-size:11.5px; color:var(--ink-soft); margin-top:4px;}
+.stamp-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:12px;}
+.stamp-slot{position:relative; aspect-ratio:1/1.05; border-radius:8px; border:2.5px dashed var(--limestone-dark); background:var(--limestone); display:flex; align-items:center; justify-content:center; overflow:hidden; transition:transform .2s;}
+.stamp-slot .semoji{font-size:26px; filter:grayscale(1); opacity:.5;}
+.stamp-slot img{width:100%; height:100%; object-fit:cover; display:block;}
+.stamp-slot .slock{position:absolute; bottom:3px; right:4px; font-size:11px;}
+.stamp-slot.earned{border:2.5px solid var(--fossil-amber); background:linear-gradient(160deg,#fff,#FFF6E4); transform:rotate(-4deg); box-shadow:0 4px 10px rgba(217,164,65,.35);}
+.stamp-slot.earned .semoji{filter:none; opacity:1;}
+.stamp-slot.earned .slock{display:none;}
+.stamp-label{font-size:9px; text-align:center; margin-top:4px; color:var(--ink-soft); font-family:'Kanit',sans-serif; line-height:1.25;}
+.stamp-earned-banner{display:none; margin:14px 0 0; background:linear-gradient(135deg,#FFF6E4,#FFE9C2); border:2px solid var(--fossil-amber); border-radius:14px; padding:12px 14px; text-align:center; font-family:'Kanit',sans-serif; font-weight:700; font-size:14px; color:#7A4E00;}
+
+.level-picker{display:flex; flex-direction:column; gap:10px; margin-top:14px;}
+.level-btn{display:flex; align-items:center; gap:12px; background:#fff; border:2px solid var(--limestone-dark); border-radius:16px; padding:12px 14px; cursor:pointer;}
+.level-btn .lnum{font-family:'Kanit',sans-serif; font-weight:800; font-size:20px; color:var(--sea-turquoise);}
+.level-btn .ltitle{font-family:'Kanit',sans-serif; font-weight:700; font-size:14.5px; color:var(--ink);}
+.level-btn .ldesc{font-size:12px; color:var(--ink-soft);}
+.match-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px;}
+.mcard{aspect-ratio:1; background:var(--cave-mid); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; user-select:none; overflow:hidden; position:relative;}
+.mcard .back{font-size:20px;}
+.mcard .art{width:100%; height:100%; display:none;}
+.mcard .art img{width:100%; height:100%; object-fit:cover; display:block;}
+.mcard .lbltext{display:none; position:absolute; inset:0; align-items:center; justify-content:center; text-align:center; padding:4px; font-family:'Kanit','Noto Sans SC',sans-serif; font-size:11px; font-weight:700; color:var(--ink); background:#fff;}
+.mcard.flipped{background:#fff; border:2px solid var(--sea-turquoise);}
+.mcard.flipped .back{display:none;}
+.mcard.flipped .art{display:block;}
+.mcard.flipped .lbltext{display:flex;}
+.mcard.matched{border:2px solid #3FA65C;}
+.back-row{display:flex; gap:8px; margin-top:14px;}
+.back-row .btn{margin-top:0;}
+
+.match-side-title{font-family:'Kanit',sans-serif; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin:14px 0 8px; display:flex; align-items:center; gap:6px;}
+.match-split{display:flex; flex-direction:column;}
+.match-mini-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+.match-art-card{aspect-ratio:1; border-radius:12px; overflow:hidden; cursor:pointer; border:3px solid transparent; position:relative; background:var(--cave-mid);}
+.match-art-card img{width:100%; height:100%; object-fit:cover; display:block;}
+.match-art-card.selected{border-color:var(--fossil-amber); box-shadow:0 0 0 2px var(--fossil-amber);}
+.match-art-card.matched{opacity:.3; pointer-events:none;}
+.match-art-card.wrongflash{border-color:var(--coral);}
+.match-label-card{background:#fff; border:2px solid var(--limestone-dark); border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer; font-family:'Kanit','Noto Sans SC',sans-serif; font-weight:700; font-size:12px; color:var(--ink); display:flex; align-items:center; justify-content:center; min-height:52px;}
+.match-label-card.selected{border-color:var(--fossil-amber); background:#FFF7E8; box-shadow:0 0 0 2px var(--fossil-amber);}
+.match-label-card.matched{opacity:.3; pointer-events:none;}
+.match-label-card.wrongflash{border-color:var(--coral); background:#FBE7E3;}
+.match-session-bar{display:flex; justify-content:space-between; align-items:center; background:var(--cave-deep); color:var(--fossil-amber); border-radius:14px; padding:10px 14px; margin-top:10px; font-family:'Kanit',sans-serif; font-size:13px;}
+.level-btn.done{border-color:#3FA65C; background:#F0FBF3;}
+.level-btn .ldone-check{color:#3FA65C; font-weight:800; margin-left:auto;}
+
+.spot-tile-wrap{display:flex; flex-direction:column; gap:6px;}
+.spot-tile-label{font-family:'Kanit',sans-serif; font-size:11.5px; font-weight:700; color:var(--ink-soft); text-align:center;}
+.spot-tile-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:5px;}
+.spot-tile{aspect-ratio:1; border-radius:8px; overflow:hidden; cursor:pointer; border:3px solid transparent; position:relative;}
+.spot-tile img{width:100%; height:100%; object-fit:cover; display:block;}
+.spot-tile.found{border-color:var(--coral); box-shadow:0 0 0 2px var(--coral);}
+.spot-tile.miss-flash{border-color:#bbb;}
+.scene-panel .hit-marker{position:absolute; width:17%; aspect-ratio:1; border:3px solid var(--coral); border-radius:50%; transform:translate(-50%,-50%); pointer-events:none;}
+.scene-panel .miss-marker{position:absolute; width:16px; height:16px; border-radius:50%; background:rgba(0,0,0,.3); transform:translate(-50%,-50%); pointer-events:none;}
+.spot-meta{display:flex; justify-content:space-between; font-family:'Kanit',sans-serif; font-size:13px; color:var(--ink-soft); margin-top:2px;}
+
+.map-wrap{position:relative; margin-top:12px; border-radius:16px; overflow:hidden; border:2px solid var(--limestone-dark); background:var(--sea-blue-light);}
+.zone-pin{width:35px; height:35px; border-radius:50%; background:rgba(255,255,255,.9); border:2px dashed var(--cave-mid); display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer;}
+.zone-pin.filled{background:var(--sea-turquoise); border-style:solid;}
+.zone-pin.correctzone{background:#3FA65C; border-color:#2c7d41;}
+.zone-pin.thumbfilled{padding:0; overflow:hidden;}
+.zone-pin.thumbfilled img{width:100%; height:100%; object-fit:cover; border-radius:50%;}
+.card-tray{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+.drag-card{background:#fff; border:2px solid var(--limestone-dark); border-radius:12px; padding:6px 12px 6px 6px; font-size:13px; font-family:'Sarabun',sans-serif; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:8px;}
+.drag-card .thumb{width:30px; height:30px; border-radius:8px; flex-shrink:0; overflow:hidden;}
+.drag-card .thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+.drag-card.selected{border-color:var(--coral); background:#FFF1EC;}
+.map-caption{font-size:11px; color:var(--ink-soft); text-align:center; margin-top:6px;}
+.result-hero{text-align:center; padding:10px 0 4px;}
+.result-hero .big-emoji{font-size:50px;}
+.result-hero .score{font-family:'Kanit',sans-serif; font-size:38px; font-weight:800; color:var(--coral); margin-top:4px;}
+.result-hero .score-label{font-size:13px; color:var(--ink-soft); font-family:'Kanit',sans-serif;}
+.lb-row{display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:12px; margin-bottom:6px; background:var(--limestone); font-size:13.5px;}
+.lb-row.me{background:#FFF1EC; border:1.5px solid var(--coral);}
+
+.footer-note{text-align:center; font-size:10.5px; color:rgba(243,234,214,.55); margin-top:14px; line-height:1.6;}
+.screen{display:none;}
+.screen.active{display:block; animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="arch-frame">
+    <div class="stalactites"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+    <div class="lang-bar" id="langBar">
+      <button class="lang-btn" data-lang="th">ไทย</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+
+    <!-- START SCREEN -->
+    <div class="screen active" id="screen-start">
+      <div class="brand">
+        <span class="eyebrow" id="eyebrowTitle">🦴 Living Geopark Knowledge Hub</span>
+        <h1 id="brandTitle">ศูนย์รวมภารกิจ<span class="hi">อุทยานธรณีโลกสตูล</span></h1>
+        <p id="brandSubtitle">มินิเกม ทายพิกัดภูมิศาสตร์แนว GeoGuessr ของจังหวัดสตูล</p>
+      </div>
+      <div class="field-label" id="lblName">🧑‍🚀 ชื่อนักสำรวจของเธอคือ?</div>
+      <input type="text" id="playerName" maxlength="20" placeholder="พิมพ์ชื่อของเธอที่นี่...">
+      <div class="welcome-back" id="welcomeBack"></div>
+      <div class="field-label" id="lblAvatar">🎒 เลือกตัวละครประจำทริป</div>
+      <div class="avatar-grid" id="avatarGrid"></div>
+      <button class="btn btn-primary" id="startBtn" disabled>เข้าสู่ศูนย์ภารกิจ 🚀</button>
+    </div>
+
+    <!-- HUB SCREEN -->
+    <div class="screen" id="screen-hub">
+      <div class="hub-top">
+        <div class="hub-player">
+          <div class="av" id="hubAvatar">🧭</div>
+          <div><div class="nm" id="hubName">-</div><div class="tot" id="hubTotalWrap">คะแนนรวม <b id="hubTotal">0</b></div></div>
+        </div>
+        <button class="icon-btn" id="changePlayerBtn2">เปลี่ยนผู้เล่น</button>
+      </div>
+      <div class="field-label" id="lblMissions" style="margin-top:4px;">🗺️ เลือกภารกิจที่อยากเล่น</div>
+      <div class="game-grid" id="gameGrid">
+        <div class="game-card" data-game="quiz">
+          <div class="gicon">❓</div>
+          <div class="gbody"><div class="gtitle">1. ตอบคำถามฟอสซิลแลนด์</div><div class="gdesc">ทดสอบความรู้อุทยานธรณีโลกสตูล 10 ข้อ</div><div class="gbest" data-best="quiz">คะแนนสูงสุด: 0</div></div>
+          <div class="garrow">›</div>
+        </div>
+        <div class="game-card" data-game="match">
+          <div class="gicon">🧩</div>
+          <div class="gbody"><div class="gtitle">2. จับคู่ภาพฟอสซิลและถ้ำ</div><div class="gdesc">เกมความจำ 3 ด่าน จับคู่ภาพถ่ายกับชื่อ</div><div class="gbest" data-best="match">คะแนนสูงสุด: 0</div></div>
+          <div class="garrow">›</div>
+        </div>
+        <div class="game-card" data-game="spot">
+          <div class="gicon">🔍</div>
+          <div class="gbody"><div class="gtitle">3. จับผิดภาพ</div><div class="gdesc">หาจุดต่าง 5 จุด ใน 3 ฉากอุทยานธรณี</div><div class="gbest" data-best="spot">คะแนนสูงสุด: 0</div></div>
+          <div class="garrow">›</div>
+        </div>
+        <div class="game-card" data-game="dragmap">
+          <div class="gicon">📍</div>
+          <div class="gbody"><div class="gtitle">4. เลือกภาพใส่แผนที่สตูล</div><div class="gdesc">จิ้มเลือกภาพสถานที่ไปวางให้ตรงตำแหน่งบนแผนที่จริงของจังหวัดสตูล</div><div class="gbest" data-best="dragmap">คะแนนสูงสุด: 0</div></div>
+          <div class="garrow">›</div>
+        </div>
+        <div class="game-card" data-game="geoguess">
+          <div class="gicon">🧭</div>
+          <div class="gbody">
+            <div class="gtitle" id="g5t">5. ทายพิกัดอุทยานธรณีสตูล (GeoGuessr)</div>
+            <div class="gdesc" id="g5d">ดูภาพถ่ายสถานที่จริง แล้วจิ้มหมุดลงบนแผนที่ให้แม่นยำที่สุด!</div>
+            <div class="gbest" id="geoBestScore">คะแนนสูงสุด: 0</div>
+          </div>
+          <div class="garrow">›</div>
+        </div>
+      </div>
+      <div class="stamp-section" id="stampSection">
+        <div class="stamp-header">
+          <h3>📮 สมุดสะสมแสตมป์</h3>
+          <span class="scount" id="stampCount">0/5</span>
+        </div>
+        <div class="stamp-hint">ทำคะแนนให้ได้มากกว่าครึ่งหนึ่งของแต่ละภารกิจ เพื่อรับแสตมป์ประจำภารกิจนั้น!</div>
+        <div class="stamp-grid" id="stampGrid"></div>
+      </div>
+      <div class="leaderboard" style="margin-top:20px;">
+        <h3 id="lbTitle">🥇 กระดานผู้นำรวมทุกภารกิจ</h3>
+        <div id="lbListHub"></div>
+      </div>
+      <button class="btn btn-ghost" id="openSurveyBtn" style="margin-top:16px;">📝 แบบประเมินความพึงพอใจ</button>
+    </div>
+
+    <!-- SATISFACTION SURVEY -->
+    <div class="screen" id="screen-survey">
+      <div class="field-label" style="margin-top:0;">📝 แบบประเมินความพึงพอใจ</div>
+      <div class="clue-box" style="margin-top:8px;">ขอบคุณที่ร่วมสำรวจอุทยานธรณีโลกสตูลกับเรา ช่วยประเมินความพึงพอใจเพื่อนำไปปรับปรุงเว็บไซต์ให้ดียิ่งขึ้นนะครับ</div>
+      <div id="surveyForm"></div>
+      <div class="survey-q" style="margin-top:22px;">
+        <div class="qlabel">💡 ผู้ใช้ได้รับประโยชน์ใดจากนวัตกรรมดังกล่าว โปรดระบุอย่างน้อย 3 ประเด็น</div>
+        <div class="field-label" style="margin:14px 0 6px;">คำตอบที่ 1</div>
+        <input type="text" id="surveyBenefit1" placeholder="คำตอบของคุณ">
+        <div class="field-label" style="margin:14px 0 6px;">คำตอบที่ 2</div>
+        <input type="text" id="surveyBenefit2" placeholder="คำตอบของคุณ">
+        <div class="field-label" style="margin:14px 0 6px;">คำตอบที่ 3</div>
+        <input type="text" id="surveyBenefit3" placeholder="คำตอบของคุณ">
+      </div>
+      <div class="field-label" id="surveyCommentLabel">💬 ข้อเสนอแนะเพิ่มเติม (ถ้ามี)</div>
+      <textarea id="surveyComment" rows="3" placeholder="พิมพ์ความคิดเห็นของเธอที่นี่..." style="width:100%; padding:13px 16px; border-radius:14px; border:2px solid var(--limestone-dark); background:#fff; font-family:'Sarabun',sans-serif; font-size:15px; color:var(--ink); outline:none; resize:vertical;"></textarea>
+      <div id="surveyErr" style="display:none; color:var(--coral); font-size:12.5px; margin-top:8px; font-family:'Kanit',sans-serif;">กรุณาตอบให้ครบทุกข้อ (รวมคำตอบที่ 1-3) ก่อนส่งแบบประเมินนะครับ</div>
+      <button class="btn btn-primary" id="submitSurveyBtn">ส่งแบบประเมิน ✅</button>
+      <button class="btn btn-ghost" id="surveyBackBtn" style="margin-top:10px;">‹ กลับสู่ศูนย์ภารกิจ</button>
+    </div>
+
+    <!-- SURVEY THANK YOU -->
+    <div class="screen" id="screen-survey-thanks">
+      <div class="result-hero">
+        <div class="big-emoji">🙏</div>
+        <div class="score-label" style="margin-top:8px; font-size:16px;" id="surveyThanksText">ขอบคุณสำหรับความคิดเห็นนะครับ!</div>
+      </div>
+      <button class="btn btn-primary" id="surveyThanksBackBtn" style="margin-top:20px;">‹ กลับสู่ศูนย์ภารกิจ</button>
+    </div>
+
+    <!-- GAME 1: QUIZ -->
+    <div class="screen" id="screen-quiz">
+      <div class="hud">
+        <div class="hud-chip" id="scoreChip">⭐ 0</div>
+        <div class="timer-ring"><svg width="42" height="42" viewBox="0 0 42 42"><circle class="timer-bg" cx="21" cy="21" r="17"></circle><circle class="timer-fg" id="timerFg" cx="21" cy="21" r="17" stroke-dasharray="106.8" stroke-dashoffset="0"></circle></svg><div class="timer-num" id="timerNum">15</div></div>
+      </div>
+      <div class="river-wrap"><div class="river-track"><div class="river-fill" id="riverFill"></div><div class="kayak" id="kayak">🚣</div></div><div class="river-meta"><span id="qCounter">ข้อ 1 / 10</span><span>🏁</span></div></div>
+      <div class="question-card">
+        <div class="q-tag" id="qTag"></div>
+        <div class="q-text" id="qText"></div>
+        <div class="choices" id="choices"></div>
+        <div class="fact-box" id="factBox"></div>
+        <div class="next-wrap" id="nextWrap"><button class="btn btn-primary" id="nextBtn">ข้อต่อไป →</button></div>
+      </div>
+    </div>
+
+    <!-- GAME 2: MATCH -->
+    <div class="screen" id="screen-match-menu">
+      <div class="field-label">🧩 เลือกด่านจับคู่</div>
+      <div class="match-session-bar"><span>คะแนนสะสมรวม 3 ด่าน</span><b id="matchSessionTotal">⭐ 0</b></div>
+      <div class="level-picker" id="levelPicker"></div>
+      <div class="back-row"><button class="btn btn-ghost" id="matchBackBtn">‹ กลับเมนูเกม</button></div>
+    </div>
+    <div class="screen" id="screen-match">
+      <div class="hud"><div class="hud-chip" id="matchScoreChip">⭐ รวม 0</div><div class="hud-chip" id="matchMovesChip">🔄 0</div></div>
+      <div class="field-label" id="matchLevelTitle" style="margin-top:10px;"></div>
+      <div class="match-split">
+        <div class="match-side-title">🖼️ ฝั่งภาพ — แตะเลือกภาพ</div>
+        <div class="match-mini-grid" id="matchArtGrid"></div>
+        <div class="match-side-title">🔤 ฝั่งชื่อ — แตะเลือกชื่อที่ตรงกับภาพ</div>
+        <div class="match-mini-grid" id="matchLabelGrid"></div>
+      </div>
+      <div class="fact-box" id="matchFactBox"></div>
+    </div>
+
+    <!-- GAME 3: SPOT -->
+    <div class="screen" id="screen-spot-menu">
+      <div class="field-label">🔍 เลือกฉากจับผิดภาพ</div>
+      <div class="level-picker" id="spotPicker"></div>
+      <div class="back-row"><button class="btn btn-ghost" id="spotBackBtn">‹ กลับเมนูเกม</button></div>
+    </div>
+    <div class="screen" id="screen-spot">
+      <div class="spot-meta"><span id="spotFound">พบแล้ว 0/5</span><span id="spotTimer">⏱️ 60 วิ</span></div>
+      <div class="scene-wrap" style="display:flex; flex-direction:column; gap:14px; margin-top:12px;">
+        <div class="spot-tile-wrap"><div class="spot-tile-label">ภาพต้นฉบับ</div><div class="spot-tile-grid" id="spotGridLeft"></div></div>
+        <div class="spot-tile-wrap"><div class="spot-tile-label">หาจุดที่แตกต่าง 👇</div><div class="spot-tile-grid" id="spotGridRight"></div></div>
+      </div>
+      <div class="next-wrap" id="spotNextWrap" style="margin-top:14px;"><button class="btn btn-primary" id="spotNextBtn">ไปฉากต่อไป / สรุปผล →</button></div>
+    </div>
+
+    <!-- GAME 4: DRAG PHOTOS TO MAP (Satun province - Updated to Real Leaflet Map) -->
+    <div class="screen" id="screen-dragmap">
+      <div class="field-label">📍 แตะเลือกภาพด้านล่าง แล้วแตะที่หมุดตำแหน่งบนแผนที่จริง — วางครบทุกภาพแล้วค่อยกด "ส่งคำตอบ"</div>
+      <div class="hud"><div class="hud-chip" id="dragScoreChip">⭐ 0</div><div class="hud-chip" id="dragLeftChip">เหลือ 8 ภาพ</div></div>
+      <div class="map-wrap" style="height: 320px; border: 2px solid var(--limestone-dark); margin-top: 10px;">
+         <div id="realDragMap" style="width: 100%; height: 100%; z-index: 1;"></div>
+      </div>
+      <div class="map-caption">แผนที่จังหวัดสตูลจริงเพื่อการเรียนรู้ตำแหน่งทางภูมิศาสตร์ของอุทยานธรณี</div>
+      <div class="card-tray" id="dragCardTray"></div>
+      <div class="next-wrap" id="dragSubmitWrap"><button class="btn btn-primary" id="dragSubmitBtn">✅ ส่งคำตอบ</button></div>
+      <div class="next-wrap" id="dragNextWrap"><button class="btn btn-primary" id="dragFinishBtn">ดูผลสรุป →</button></div>
+    </div>
+
+    <!-- GAME 5: GEOGUESS SCREEN -->
+    <div class="screen" id="screen-geoguess">
+      <div class="hud">
+        <div class="hud-chip" id="geoScoreChip">⭐ 0</div>
+        <div class="hud-chip" id="geoRoundChip">รอบ 1 / 5</div>
+      </div>
+      <div class="clue-box" id="geoClueText"></div>
+      <div class="clue-art" id="geoClueArt"></div>
+      
+      <div class="field-label" id="mapCaption2">🗺️ แตะบนแผนที่ตรงตำแหน่งที่คิดว่าใช่ :</div>
+      <!-- Leaflet Map Container -->
+      <div class="map-wrap" style="height: 320px; border: 2px solid var(--limestone-dark); margin-top: 10px;">
+         <div id="realGeoMap" style="width: 100%; height: 100%; z-index: 1;"></div>
+      </div>
+
+      <div class="confirm-box" id="geoConfirmBox">
+        <p id="geoConfirmText">ยืนยันตำแหน่งนี้ใช่ไหม?</p>
+        <div class="confirm-row">
+          <button class="btn btn-primary btn-sm" id="geoConfirmYes" style="flex:1;">✅ ยืนยัน</button>
+          <button class="btn btn-ghost btn-sm" id="geoConfirmNo" style="flex:1;">🔄 เลือกใหม่</button>
+        </div>
+      </div>
+      <div class="next-wrap" id="geoNextWrap" style="display:none; margin-top: 15px;">
+        <button class="btn btn-primary" id="geoNextBtn">รอบต่อไป →</button>
+      </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div class="screen" id="screen-result">
+      <div class="result-hero">
+        <div class="big-emoji" id="resultEmoji">🏆</div>
+        <div class="score" id="finalScore">0</div>
+        <div class="score-label" id="resultGameName">คะแนนรวมภารกิจ</div>
+      </div>
+      <div class="result-stats" id="resultStats" style="display:flex; gap:10px; margin:16px 0 6px;">
+        <div class="stat-box" style="flex:1; background:var(--limestone); border:1.5px solid var(--limestone-dark); border-radius:14px; padding:12px 8px; text-align:center;"><div class="v" id="statMain" style="font-family:'Kanit',sans-serif; font-weight:700; font-size:18px; color:var(--cave-mid);">-</div><div class="l" id="statMainLabel" style="font-size:11px; color:var(--ink-soft); margin-top:2px;"></div></div>
+        <div class="stat-box" style="flex:1; background:var(--limestone); border:1.5px solid var(--limestone-dark); border-radius:14px; padding:12px 8px; text-align:center;"><div class="v" id="statBest" style="font-family:'Kanit',sans-serif; font-weight:700; font-size:18px; color:var(--cave-mid);">0</div><div class="l" style="font-size:11px; color:var(--ink-soft); margin-top:2px;">คะแนนสูงสุดของเธอ</div></div>
+      </div>
+      <div class="stamp-earned-banner" id="stampEarnedBanner"></div>
+      <button class="btn btn-primary" id="retryBtn">เล่นใหม่อีกครั้ง 🔁</button>
+      <button class="btn btn-ghost" id="backHubBtn" style="margin-top:10px;">‹ กลับสู่ศูนย์ภารกิจ</button>
+    </div>
+
+    <div class="footer-note" id="footerNote">ข้อมูลจะถูกบันทึกไว้ในเบราว์เซอร์นี้อัตโนมัติ</div>
+  </div>
+
+  <div class="all-stamps-overlay" id="allStampsOverlay">
+    <div class="all-stamps-card">
+      <span class="confetti" style="top:10px; left:16px; transform:rotate(-15deg);">🎉</span>
+      <span class="confetti" style="top:14px; right:18px; transform:rotate(12deg);">✨</span>
+      <span class="confetti" style="bottom:14px; left:20px; transform:rotate(10deg);">🎊</span>
+      <span class="confetti" style="bottom:10px; right:16px; transform:rotate(-10deg);">✨</span>
+      <div class="all-stamps-emoji">🏆</div>
+      <h2>ยินดีด้วย! สะสมแสตมป์ครบ 5 ดวงแล้ว!</h2>
+      <p>เธอสำรวจครบทุกภารกิจของอุทยานธรณีโลกสตูล และทำคะแนนได้เกินครึ่งทุกด่าน สุดยอดนักสำรวจตัวจริง!</p>
+      <div class="all-stamps-row" id="allStampsRowIcons"></div>
+      <button class="btn btn-primary" id="allStampsCloseBtn">รับทราบ ขอบคุณครับ 🙌</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Mock storage replacement to prevent errors when running locally (only if no real storage exists) */
+if(!window.storage){
+  window.storage = {
+    get: async function(key) { return { value: localStorage.getItem(key) }; },
+    set: async function(key, val) { localStorage.setItem(key, val); return true; },
+    list: async function(prefix) {
+      let keys = Object.keys(localStorage).filter(k => k.startsWith(prefix));
+      return { keys: keys };
+    }
+  };
+}
+
+let LANG = 'th';
+const UI = {
+  geoRound: {th: 'รอบ {n} / {total}', en: 'Round {n} / {total}'},
+  geoConfirmText: {th: 'ยืนยันตำแหน่งนี้ใช่ไหม?', en: 'Confirm this location?'},
+  geoResultText: {th: 'ตำแหน่งจริงคือ {label} — คุณทายห่างไป {dist} กม. ได้ {score} คะแนน!', en: 'Real spot is {label} — you missed by {dist} km, got {score} pts!'}
+};
+
+function tr(o){ return o[LANG] || o.th || ''; }
+function T(key, vars){
+  let s = tr(UI[key]) || key;
+  if(vars){ Object.keys(vars).forEach(k=>{ s = s.replace('{'+k+'}', vars[k]); }); }
+  return s;
+}
+
+const AVATARS = [
+  {e:'🧑‍🔬', n:{th:'นักธรณีวิทยา', en:'Geologist'}},
+  {e:'🚣', n:{th:'กัปตันคายัค', en:'Kayak Captain'}},
+  {e:'🦕', n:{th:'นักล่าฟอสซิล', en:'Fossil Hunter'}},
+  {e:'🔦', n:{th:'นักสำรวจถ้ำ', en:'Cave Explorer'}},
+  {e:'🐚', n:{th:'นักสะสมเปลือกหอย', en:'Shell Collector'}},
+  {e:'🏝️', n:{th:'นักเดินเกาะ', en:'Island Hopper'}},
+  {e:'⛏️', n:{th:'นักขุดหิน', en:'Rock Digger'}},
+  {e:'🧭', n:{th:'นักนำทาง', en:'Navigator'}},
+  {e:'👦', n:{th:'นักเรียนชาย', en:'Schoolboy'}},
+  {e:'👧', n:{th:'นักเรียนหญิง', en:'Schoolgirl'}},
+  {e:'👨‍🌾', n:{th:'ลุงไกด์ท้องถิ่น', en:'Local Guide'}},
+  {e:'👩‍🌾', n:{th:'ป้าชาวบ้าน', en:'Village Auntie'}}
+];
+
+const STAMPS = [
+  {id:'quiz', label:{th:'ตอบคำถามฟอสซิลแลนด์'}, emoji:'❓'},
+  {id:'match', label:{th:'จับคู่ภาพฟอสซิลและถ้ำ'}, emoji:'🧩'},
+  {id:'spot', label:{th:'จับผิดภาพ'}, emoji:'🔍'},
+  {id:'dragmap', label:{th:'แผนที่สตูล'}, emoji:'📍'},
+  {id:'geoguess', label:{th:'ทายพิกัดสตูล'}, emoji:'🧭'}
+];
+/* ใส่ลิงก์ภาพแสตมป์ของแต่ละภารกิจตรงนี้ได้เลย (เว้นว่างไว้ = ใช้ไอคอนอิโมจิแทน) */
+const STAMP_IMG = {
+  quiz: 'https://i.ibb.co/chYSVBPS/IMG-4102.png',
+  match: 'https://i.ibb.co/rGD5NRqB/IMG-4104.png',
+  spot: 'https://i.ibb.co/271rg9h1/IMG-4103.png',
+  dragmap: 'https://i.ibb.co/LXZs5Zmv/IMG-4106.png',
+  geoguess: 'https://i.ibb.co/vtmv14F/IMG-4105.png'
+};
+
+function wcThumb(hash1, hash2, filename){
+  const enc = encodeURI(filename);
+  return `https://upload.wikimedia.org/wikipedia/commons/thumb/${hash1}/${hash2}/${enc}/400px-${enc}`;
+}
+
+/* ลิงก์รูปภาพสาธารณะจากวิกิมีเดียคอมมอนส์ที่เข้าถึงได้แน่นอนทั่วโลก */
+const IMG_URL = {
+  nautiloid: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWjMs4nAHfs6XT3myiWoZMhWbiEpjlUIUMa0TxFOo8Dw&s=10',
+  ammonite: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROuDPnA9rnoH2tauuKrg14xJZEts8SrCiNvo1E5wrdtg&s=10',
+  coral: 'https://i.ibb.co/yFSj2n5y/image.jpg', 
+  snail: 'https://assets0.fossilera.com/sp/646804/gastropods/trochonema-beloitense.jpg',
+  trilobite: 'https://www.nhm.ac.uk/content/dam/nhm-www/discover/trilobite-diet/trilobite-diet-full-width.jpg.thumb.1160.1160.png',
+  bone: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1Tu5KaDsXC1MbhiCOziWhgNc3rVS1NQq-lAUYmqhmAg&s=10',
+  museum: 'https://www.gplace.com/include/img_res/3/96/gp5dcbc0cf1bd2d.jpg',
+  cave1: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeyxId4ymguLgeNVhqDHjRGeUvQbMK4_3T7gojo9XdYvYLjJzHadMTecU&s=10',
+  cave2: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTblBQHTKVaKCtbAqqr4u0V_sLveroGL0-_t92apAT7ug&s=10',
+  cave3: 'https://www.riverkwairesotel.net/wp-content/uploads/2024/10/5.2-%E0%B8%96%E0%B9%89%E0%B8%B3%E0%B8%94%E0%B8%B2%E0%B8%A7%E0%B8%94%E0%B8%B6%E0%B8%87%E0%B8%AA%E0%B9%8C.webp',
+  cave4: 'https://satun-geopark.org/wp-content/uploads/2024/12/%E0%B8%96%E0%B9%89%E0%B8%B3%E0%B8%97%E0%B8%B0%E0%B8%A5%E0%B8%B8JT55-1-1024x683.jpg',
+  cave5: 'https://i.ibb.co/Ngqy3NqW/image.jpg',
+  petra: 'https://cbtthailand.dasta.or.th/upload-file-api/Resources/RelateAttraction/Images/RAT910057/2.jpeg',
+  tarutaoBeach: 'https://api.tourismthailand.org/upload/live/article_desktop_cover_image/22069-22036.png',
+  tarutaoForest: 'https://www.chillpainai.com/src/wewakeup/scoop/img_scoop/scoop/AMM/2017/February/Koh%20Tarutao/_MG_8910.JPG',
+  lipe: 'https://images.unsplash.com/photo-1512100356356-de1b84283e18?auto=format&fit=crop&w=600&q=80',
+  boat: 'https://media-cdn.tripadvisor.com/media/photo-s/0b/53/05/d8/caption.jpg'
+};
+
+/* ปรับปรุงขนาดและระบบป้องกันความผิดพลาดของรูปภาพพัง */
+function svgIconHtml(key){
+  const url = IMG_URL[key] || IMG_URL.museum;
+  return `<img src="${url}" alt="Geopark Image" loading="lazy" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src=''; this.style.background='var(--coral)';">`;
+}
+
+let player = {name:'', key:'', avatar:'🧭', scores:{quiz:0,match:0,spot:0,dragmap:0,geoguess:0}, plays:{quiz:0,match:0,spot:0,dragmap:0,geoguess:0}, stamps:{quiz:false,match:false,spot:false,dragmap:false,geoguess:false}};
+let selectedAvatar = null;
+
+async function loadPlayer(key){
+  try{ const res = await window.storage.get('player:'+key); if(res && res.value) return JSON.parse(res.value); }catch(e){}
+  return null;
+}
+async function savePlayer(){
+  try{ await window.storage.set('player:'+player.key, JSON.stringify(player)); }catch(e){}
+  try{
+    const total = Object.values(player.scores).reduce((a,b)=>a+b,0);
+    await window.storage.set('leaderboard:'+player.key, JSON.stringify({name:player.name, avatar:player.avatar, scores:player.scores, total}));
+  }catch(e){}
+}
+function getTotal(){ return Object.values(player.scores).reduce((a,b)=>a+b,0); }
+async function loadLeaderboard(){
+  const el = document.getElementById('lbListHub');
+  el.innerHTML = '<div style="text-align:center;font-size:13px;color:var(--ink-soft);padding:14px 0;">กำลังโหลด...</div>';
+  try{
+    const listRes = await window.storage.list('leaderboard:');
+    const keys = (listRes && listRes.keys) ? listRes.keys : [];
+    if(keys.length===0){ el.innerHTML = '<div style="text-align:center;font-size:13px;color:var(--ink-soft);padding:14px 0;">ยังไม่มีใครขึ้นกระดานคะแนนเลย เป็นคนแรกสิ!</div>'; return; }
+    const entries=[];
+    for(const k of keys){ try{ const r = await window.storage.get(k); if(r && r.value){ const d=JSON.parse(r.value); entries.push({key:k, name:d.name, avatar:d.avatar||'🧭', total:d.total||0}); } }catch(e){} }
+    entries.sort((a,b)=>b.total-a.total);
+    el.innerHTML='';
+    entries.slice(0,10).forEach((e,i)=>{
+      const row=document.createElement('div'); row.className='lb-row'+(e.key==='leaderboard:'+player.key?' me':'');
+      const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+      row.innerHTML = `<span class="lb-rank">${medal}</span><span>${e.avatar}</span><span class="lb-name" style="margin-left:6px;">${e.name}</span><span class="lb-score" style="margin-left:auto;font-weight:bold;color:var(--cave-mid);">${e.total}</span>`;
+      el.appendChild(row);
+    });
+  }catch(e){ el.innerHTML = '<div style="text-align:center;font-size:13px;color:var(--ink-soft);padding:14px 0;">โหลดกระดานคะแนนไม่สำเร็จ</div>'; }
+}
+
+/* อัพเดทตัวเลือกตัวละคร */
+function renderAvatarGrid(){
+  const grid = document.getElementById('avatarGrid');
+  grid.innerHTML = '';
+  AVATARS.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'avatar-btn' + (a.e === selectedAvatar ? ' selected' : '');
+    div.dataset.avatar = a.e;
+    div.innerHTML = `<span class="emoji">${a.e}</span><span class="name">${tr(a.n)}</span>`;
+    grid.appendChild(div);
+  });
+}
+
+document.getElementById('avatarGrid').addEventListener('click',(e)=>{
+  const btn = e.target.closest('.avatar-btn'); if(!btn) return;
+  document.querySelectorAll('.avatar-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected'); selectedAvatar = btn.dataset.avatar;
+  updateStartBtn();
+});
+
+function updateStartBtn(){ 
+  const name = document.getElementById('playerName').value.trim();
+  document.getElementById('startBtn').disabled = !(name.length > 0 && selectedAvatar); 
+}
+document.getElementById('playerName').addEventListener('input', updateStartBtn);
+
+/* ระบบลงชื่อและเข้าเล่น */
+document.getElementById('startBtn').addEventListener('click', async ()=>{
+  const name = document.getElementById('playerName').value.trim();
+  const key = name.replace(/\s+/g, '_');
+  const existing = await loadPlayer(key);
+  player = existing || {name, key, avatar:selectedAvatar, scores:{quiz:0,match:0,spot:0,dragmap:0,geoguess:0}, plays:{quiz:0,match:0,spot:0,dragmap:0,geoguess:0}, stamps:{quiz:false,match:false,spot:false,dragmap:false,geoguess:false}};
+  player.name = name; player.key = key; player.avatar = selectedAvatar;
+  if(!player.scores) player.scores = {quiz:0,match:0,spot:0,dragmap:0,geoguess:0};
+  if(!player.plays) player.plays = {quiz:0,match:0,spot:0,dragmap:0,geoguess:0};
+  if(!player.stamps) player.stamps = {quiz:false,match:false,spot:false,dragmap:false,geoguess:false};
+  enterHub();
+});
+
+function enterHub(){
+  document.getElementById('hubAvatar').textContent = player.avatar;
+  document.getElementById('hubName').textContent = player.name;
+  document.getElementById('hubTotal').textContent = getTotal();
+  document.getElementById('geoBestScore').textContent = "คะแนนสูงสุด: " + (player.scores.geoguess||0);
+  document.querySelectorAll('.gbest[data-best]').forEach(el=>{ const g = el.dataset.best; el.textContent = 'คะแนนสูงสุด: ' + (player.scores[g]||0); });
+  renderStamps();
+  showScreen('screen-hub');
+  loadLeaderboard();
+}
+
+function renderStamps(){
+  if(!player.stamps) player.stamps = {quiz:false,match:false,spot:false,dragmap:false,geoguess:false};
+  const grid = document.getElementById('stampGrid'); if(!grid) return;
+  grid.innerHTML = '';
+  let earnedCount = 0;
+  STAMPS.forEach(s=>{
+    const earned = !!player.stamps[s.id];
+    if(earned) earnedCount++;
+    const wrap = document.createElement('div');
+    const imgUrl = STAMP_IMG[s.id];
+    const inner = imgUrl
+      ? `<img src="${imgUrl}" alt="${tr(s.label)}">`
+      : `<span class="semoji">${s.emoji}</span>`;
+    wrap.innerHTML = `<div class="stamp-slot${earned?' earned':''}">${inner}<span class="slock">🔒</span></div><div class="stamp-label">${tr(s.label)}</div>`;
+    grid.appendChild(wrap);
+  });
+  document.getElementById('stampCount').textContent = `${earnedCount}/${STAMPS.length}`;
+}
+
+document.getElementById('gameGrid').addEventListener('click', (e)=>{
+  const card = e.target.closest('.game-card'); if(!card) return;
+  const g = card.dataset.game;
+  if(g==='quiz') startQuiz();
+  else if(g==='match'){ matchSession = {levelScores:{}}; showScreen('screen-match-menu'); renderLevelPicker(); }
+  else if(g==='spot'){ startSpot(0); }
+  else if(g==='dragmap') startDragMap();
+  else if(g==='geoguess') startGeoGuess();
+});
+
+function finishGame(gameId, score, extra){
+  player.scores[gameId] = Math.max(player.scores[gameId]||0, score);
+  player.plays[gameId] = (player.plays[gameId]||0)+1;
+  if(!player.stamps) player.stamps = {quiz:false,match:false,spot:false,dragmap:false,geoguess:false};
+  let newStamp = false;
+  if(extra.halfReached && !player.stamps[gameId]){
+    player.stamps[gameId] = true;
+    newStamp = true;
+  }
+  savePlayer();
+  document.getElementById('resultEmoji').textContent = extra.emoji || '🏆';
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('resultGameName').textContent = extra.name || 'คะแนนจากภารกิจนี้';
+  document.getElementById('statMain').textContent = extra.mainStat;
+  document.getElementById('statMainLabel').textContent = extra.mainLabel;
+  document.getElementById('statBest').textContent = player.scores[gameId];
+  document.getElementById('retryBtn').onclick = extra.retry;
+  const banner = document.getElementById('stampEarnedBanner');
+  const stampInfo = STAMPS.find(s=>s.id===gameId);
+  if(newStamp){
+    banner.style.display = 'block';
+    banner.innerHTML = `🎉 ทำคะแนนได้เกินครึ่ง! ได้รับแสตมป์ ${stampInfo?stampInfo.emoji:'📮'} ประจำภารกิจ "${stampInfo?tr(stampInfo.label):''}" แล้ว!`;
+  } else {
+    banner.style.display = 'none';
+    banner.innerHTML = '';
+  }
+  showScreen('screen-result');
+  if(newStamp){
+    const allEarned = STAMPS.every(s=>player.stamps[s.id]);
+    if(allEarned && !player.allStampsCelebrated){
+      player.allStampsCelebrated = true;
+      savePlayer();
+      setTimeout(showAllStampsCelebration, 550);
+    }
+  }
+}
+function showAllStampsCelebration(){
+  const row = document.getElementById('allStampsRowIcons');
+  row.innerHTML = STAMPS.map(s=>`<span>${s.emoji}</span>`).join('');
+  document.getElementById('allStampsOverlay').classList.add('show');
+}
+document.getElementById('allStampsCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('allStampsOverlay').classList.remove('show');
+});
+document.getElementById('backHubBtn').addEventListener('click', enterHub);
+const SURVEY_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbwFf9yVdeam5JGKIu6-x97wUtg2e0lqIFvlmsJ5whf-e8rnkh04rZ8Hg66KKCwQ2dtXCw/exec'
+
+const SURVEY_QUESTIONS = [
+  {id:'q1', label:{th:'1. นวัตกรรมนี้ช่วยให้เข้าใจเนื้อหาเกี่ยวกับธรณีวิทยาได้ดีขึ้น'}},
+  {id:'q2', label:{th:'2. เนื้อหามีความเหมาะสมกับระดับผู้เรียน'}},
+  {id:'q3', label:{th:'3. ความน่าสนใจของนวัตกรรม'}},
+  {id:'q4', label:{th:'4. เสียงบรรยายมีความชัดเจนและเข้าใจง่าย'}},
+  {id:'q5', label:{th:'5. การออกแบบโดยรวมมีความทันสมัยและน่าใช้งาน'}},
+  {id:'q6', label:{th:'6. การใช้งานโต๊ะมีความสะดวก ไม่ซับซ้อน'}},
+  {id:'q7', label:{th:'7. ช่วยกระตุ้นความสนใจในการเรียนรู้'}},
+  {id:'q8', label:{th:'8. ช่วยพัฒนาทักษะการคิดและการสังเกต'}},
+  {id:'q9', label:{th:'9. สื่อมีประโยชน์ต่อการเรียนในโรงเรียน'}},
+  {id:'q10', label:{th:'10. โดยรวมแล้วท่านมีความพึงพอใจต่อสื่อนี้'}}
+];
+let surveyState = {};
+
+function renderSurvey(){
+  surveyState = {};
+  document.getElementById('surveyComment').value = '';
+  document.getElementById('surveyBenefit1').value = '';
+  document.getElementById('surveyBenefit2').value = '';
+  document.getElementById('surveyBenefit3').value = '';
+  document.getElementById('surveyErr').style.display = 'none';
+  const form = document.getElementById('surveyForm');
+  form.innerHTML = '';
+  SURVEY_QUESTIONS.forEach(q=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'survey-q';
+    const row = [1,2,3,4,5].map(n=>`<button type="button" class="rating-btn" data-q="${q.id}" data-val="${n}">${n}</button>`).join('');
+    wrap.innerHTML = `<div class="qlabel">${tr(q.label)}</div><div class="rating-row">${row}</div><div class="rating-scale-labels"><span>ไม่พอใจมาก</span><span>พอใจมาก</span></div>`;
+    form.appendChild(wrap);
+  });
+}
+
+document.getElementById('surveyForm').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.rating-btn'); if(!btn) return;
+  const qid = btn.dataset.q, val = parseInt(btn.dataset.val);
+  surveyState[qid] = val;
+  document.querySelectorAll(`.rating-btn[data-q="${qid}"]`).forEach(b=>{
+    b.classList.toggle('selected', parseInt(b.dataset.val) === val);
+  });
+  document.getElementById('surveyErr').style.display = 'none';
+});
+
+document.getElementById('openSurveyBtn').addEventListener('click', ()=>{
+  renderSurvey();
+  showScreen('screen-survey');
+});
+['surveyBenefit1','surveyBenefit2','surveyBenefit3'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', ()=>{ document.getElementById('surveyErr').style.display = 'none'; });
+});
+document.getElementById('surveyBackBtn').addEventListener('click', enterHub);
+document.getElementById('surveyThanksBackBtn').addEventListener('click', enterHub);
+
+document.getElementById('submitSurveyBtn').addEventListener('click', async ()=>{
+  const b1 = document.getElementById('surveyBenefit1').value.trim();
+  const b2 = document.getElementById('surveyBenefit2').value.trim();
+  const b3 = document.getElementById('surveyBenefit3').value.trim();
+  const allAnswered = SURVEY_QUESTIONS.every(q=>surveyState[q.id]) && b1 && b2 && b3;
+  if(!allAnswered){
+    document.getElementById('surveyErr').style.display = 'block';
+    return;
+  }
+  const payload = {
+    name: player.name || '',
+    avatar: player.avatar || '',
+    benefit1: b1, benefit2: b2, benefit3: b3,
+    comment: document.getElementById('surveyComment').value.trim()
+  };
+  SURVEY_QUESTIONS.forEach(q=>{ payload[q.id] = surveyState[q.id]; });
+  const submitBtn = document.getElementById('submitSurveyBtn');
+  submitBtn.disabled = true; submitBtn.textContent = 'กำลังส่ง...';
+  try{
+    /* เก็บสำรองในเบราว์เซอร์ผู้ตอบไว้ด้วย (กันหลุดกรณีเน็ตมีปัญหา ไม่ใช่ที่เก็บหลัก) */
+    await window.storage.set('survey:'+Date.now()+'_'+(player.key||'anon'), JSON.stringify(payload), true);
+  }catch(err){}
+  if(SURVEY_ENDPOINT_URL){
+    try{
+      await fetch(SURVEY_ENDPOINT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(payload)
+      });
+    }catch(err){ /* no-cors ไม่สามารถอ่าน response ได้ และ fetch อาจ throw ได้แม้ส่งสำเร็จ จึงไม่ถือเป็น error ร้ายแรง */ }
+  } else {
+    console.warn('ยังไม่ได้ตั้งค่า SURVEY_ENDPOINT_URL — ข้อมูลแบบประเมินจะไม่ถูกส่งไปที่ Google Sheet');
+  }
+  submitBtn.disabled = false; submitBtn.textContent = 'ส่งแบบประเมิน ✅';
+  showScreen('screen-survey-thanks');
+});
+
+/* ============== GAME 1: QUIZ ============== */
+const QUESTIONS = [
+{tag:{th:"รู้จักอุทยานธรณีโลกสตูล"},q:{th:"อุทยานธรณีโลกสตูล ได้รับการรับรองจากองค์กรใดของสหประชาชาติ?"},choices:[{th:"UNESCO (ยูเนสโก)"},{th:"WHO (องค์การอนามัยโลก)"},{th:"FIFA"},{th:"UNICEF"}],correct:0,fact:{th:"อุทยานธรณีสตูล คือ <b>อุทยานธรณีโลกแห่งแรกของประเทศไทย</b> ได้รับการรับรองจาก UNESCO Global Geoparks!"}},
+{tag:{th:"พื้นที่อุทยานธรณี"},q:{th:"อุทยานธรณีโลกสตูล ครอบคลุมพื้นที่กี่อำเภอในจังหวัดสตูล?"},choices:[{th:"2 อำเภอ"},{th:"3 อำเภอ"},{th:"4 อำเภอ"},{th:"6 อำเภอ"}],correct:2,fact:{th:"ครอบคลุม 4 อำเภอ ได้แก่ <b>ทุ่งหว้า มะนัง ละงู และอำเภอเมือง</b>"}},
+{tag:{th:"ถ้ำเลสเตโกดอน"},q:{th:"ทำไม \"ถ้ำเลสเตโกดอน\" ถึงมีชื่อนี้?"},choices:[{th:"เพราะมีค้างคาวสเตโกดอนอาศัยอยู่"},{th:"เพราะพบฟันกรามของช้างสกุลสเตโกดอน"},{th:"เพราะรูปร่างถ้ำคล้ายช้าง"},{th:"เพราะคนค้นพบชื่อสเตโกดอน"}],correct:1,fact:{th:"ภายในถ้ำมีการค้นพบ <b>ซากฟันกรามของช้างสกุลสเตโกดอน</b> จึงเป็นที่มาของชื่อถ้ำ"}},
+{tag:{th:"ถ้ำเลสเตโกดอน"},q:{th:"ถ้ำเลสเตโกดอนมีความยาวจากปากถ้ำถึงทางออกประมาณเท่าไหร่ และมีสถิติพิเศษอะไร?"},choices:[{th:"1 กม. ถ้ำที่แคบที่สุด"},{th:"4 กม. ถ้ำเชื่อมทะเลที่ยาวที่สุดในไทย"},{th:"10 กม. ถ้ำที่ลึกที่สุดในโลก"},{th:"2 กม. ถ้ำที่มีค้างคาวเยอะที่สุด"}],correct:1,fact:{th:"ยาวประมาณ <b>4 กิโลเมตร</b> ถือเป็นถ้ำที่เชื่อมกับทะเลที่มีความยาวที่สุดในประเทศไทย"}},
+{tag:{th:"ฟอสซิลในถ้ำ"},q:{th:"ฟอสซิลชนิดใดที่มีลักษณะคล้ายปลาหมึกโบราณ พบอยู่บนผนังถ้ำเลสเตโกดอน?"},choices:[{th:"ไดโนเสาร์"},{th:"นอติลอยด์"},{th:"แมมมอธ"},{th:"ปลาฉลาม"}],correct:1,fact:{th:"<b>นอติลอยด์ (Nautiloid)</b> เป็นสัตว์น้ำดึกดำบรรพ์ตระกูลเดียวกับปลาหมึก"}},
+{tag:{th:"ปราสาทหินพันยอด"},q:{th:"\"ปราสาทหินพันยอด\" มีอายุประมาณกี่ล้านปี?"},choices:[{th:"45 ล้านปี"},{th:"150 ล้านปี"},{th:"450 ล้านปี"},{th:"1,000 ล้านปี"}],correct:2,fact:{th:"หินปูนที่ถูกกัดเซาะจนกลายเป็นแท่งแหลมสวยงามนี้ มีอายุประมาณ <b>450 ล้านปี</b>"}},
+{tag:{th:"ปราสาทหินพันยอด"},q:{th:"ปราสาทหินพันยอด อยู่ในอุทยานแห่งชาติใด?"},choices:[{th:"อุทยานแห่งชาติตะรุเตา"},{th:"อุทยานแห่งชาติหมู่เกาะเภตรา"},{th:"อุทยานแห่งชาติเขาใหญ่"},{th:"อุทยานแห่งชาติดอยอินทนนท์"}],correct:1,fact:{th:"อยู่ในเขต <b>อุทยานแห่งชาติหมู่เกาะเภตรา</b> ต้องนั่งเรือแล้วพายคายัคเข้าไปชม"}},
+{tag:{th:"ถ้ำทะลุ"},q:{th:"\"ถ้ำทะลุ\" เกิดจากการละลายของหินปูนในยุคใด?"},choices:[{th:"ยุคจูราสสิก"},{th:"ยุคออร์โดวิเชียน"},{th:"ยุคไทรแอสซิก"},{th:"ยุคครีเทเชียส"}],correct:1,fact:{th:"เกิดขึ้นในช่วง <b>ยุคออร์โดวิเชียน</b> เมื่อราว 445-490 ล้านปีก่อน"}},
+{tag:{th:"สมญานามของสตูล"},q:{th:"จังหวัดสตูลได้รับสมญานามที่เกี่ยวกับฟอสซิลว่าอะไร?"},choices:[{th:"เมืองแห่งขุนเขา"},{th:"ฟอสซิลแลนด์ แดนสตูล"},{th:"เมืองหินอ่อนแห่งอาเซียน"},{th:"ดินแดนแห่งน้ำตก"}],correct:1,fact:{th:"สตูลได้รับสมญานามว่า <b>\"ฟอสซิลแลนด์ แดนสตูล\"</b>"}},
+{tag:{th:"ถ้ำภูผาเพชร"},q:{th:"ถ้ำภูผาเพชร ตั้งอยู่ในอำเภอใดของจังหวัดสตูล?"},choices:[{th:"อำเภอละงู"},{th:"อำเภอทุ่งหว้า"},{th:"อำเภอมะนัง"},{th:"อำเภอเมือง"}],correct:2,fact:{th:"ถ้ำภูผาเพชรอยู่ที่ <b>อำเภอมะนัง</b> มีห้องโถงขนาดใหญ่และหินงอกหินย้อยสวยงาม"}},
+{tag:{th:"ถ้ำภูผาเพชร"},q:{th:"ในถ้ำภูผาเพชร พบซากฟอสซิลของสิ่งมีชีวิตชนิดใด?"},choices:[{th:"ไดโนเสาร์และไข่ไดโนเสาร์"},{th:"ปะการังและหอยโบราณ"},{th:"ปลาวาฬและโลมา"},{th:"นกและผีเสื้อ"}],correct:1,fact:{th:"พบ <b>ฟอสซิลปะการังและหอยโบราณ</b> ที่บ่งบอกว่าเคยเป็นท้องทะเลมาก่อน"}},
+{tag:{th:"เกาะในอุทยานธรณี"},q:{th:"เกาะตะรุเตา เกาะอาดัง-ราวี และเกาะหลีเป๊ะ อยู่ในอุทยานแห่งชาติใด?"},choices:[{th:"อุทยานแห่งชาติตะรุเตา"},{th:"อุทยานแห่งชาติเขาสก"},{th:"อุทยานแห่งชาติหมู่เกาะเภตรา"},{th:"อุทยานแห่งชาติอ่าวพังงา"}],correct:0,fact:{th:"ทั้งสามเกาะสวยงามนี้อยู่ใน <b>อุทยานแห่งชาติตะรุเตา</b>"}},
+{tag:{th:"อุทยานธรณีคืออะไร"},q:{th:"อุทยานธรณี (Geopark) ให้ความสำคัญกับคุณค่าด้านใดบ้าง?"},choices:[{th:"กีฬาและความบันเทิงเท่านั้น"},{th:"ธรณีวิทยา โบราณคดี นิเวศวิทยา และวัฒนธรรม"},{th:"การค้าและอุตสาหกรรมเท่านั้น"},{th:"แฟชั่นและการแสดง"}],correct:1,fact:{th:"อุทยานธรณีต้องมีคุณค่าด้าน <b>ธรณีวิทยา โบราณคดี นิเวศวิทยา และวัฒนธรรม</b>"}},
+{tag:{th:"อายุของโลกใต้ทะเล"},q:{th:"อุทยานธรณีสตูล มีบันทึกหลักฐานของโลกใต้ทะเลเก่าแก่กว่ากี่ล้านปี?"},choices:[{th:"50 ล้านปี"},{th:"100 ล้านปี"},{th:"500 ล้านปี"},{th:"1,000 ล้านปี"}],correct:2,fact:{th:"มีบันทึกหลักฐานของโลกใต้ทะเลกว่า <b>500 ล้านปี</b>"}},
+{tag:{th:"ปีที่ได้รับการรับรอง"},q:{th:"อุทยานธรณีสตูล ได้รับการรับรองเป็นอุทยานธรณีโลกของยูเนสโกในปี พ.ศ. ใด?"},choices:[{th:"พ.ศ. 2559 (2016)"},{th:"พ.ศ. 2561 (2018)"},{th:"พ.ศ. 2563 (2020)"},{th:"พ.ศ. 2565 (2022)"}],correct:1,fact:{th:"ได้รับการรับรองอย่างเป็นทางการในปี <b>พ.ศ. 2561 (ค.ศ. 2018)</b>"}},
+{tag:{th:"อุปกรณ์นักสำรวจถ้ำ"},q:{th:"ก่อนล่องเรือแคนูเข้าไปในถ้ำมืด ควรสวมใส่อุปกรณ์อะไรเพื่อความปลอดภัย?"},choices:[{th:"ชุดว่ายน้ำอย่างเดียว"},{th:"เสื้อชูชีพ หมวกกันกระแทก และไฟฉายคาดหัว"},{th:"รองเท้าส้นสูง"},{th:"ไม่ต้องใส่อะไรเลย"}],correct:1,fact:{th:"ต้องใส่ <b>เสื้อชูชีพ หมวกกันกระแทก และไฟฉายคาดหัว</b> เพราะในถ้ำมืดสนิท"}},
+{tag:{th:"พิพิธภัณฑ์อุทยานธรณี"},q:{th:"พิพิธภัณฑ์อุทยานธรณีโลกสตูล ให้ข้อมูลทางวิชาการเกี่ยวกับเรื่องใด?"},choices:[{th:"แฟชั่นและเครื่องประดับ"},{th:"ธรณีวิทยา ซากดึกดำบรรพ์ และโบราณวัตถุ"},{th:"อาหารพื้นเมืองสตูล"},{th:"ดนตรีและการแสดง"}],correct:1,fact:{th:"เป็นศูนย์ข้อมูลด้าน <b>ธรณีวิทยา ซากดึกดำบรรพ์ และโบราณวัตถุ</b>"}},
+{tag:{th:"โรงเรียนนักธรณีน้อย"},q:{th:"โรงเรียนใดในสตูล มีชมรมนักเรียนที่เก็บตัวอย่างฟอสซิลครบทั้ง 6 ยุคของมหายุคพาลีโอโซอิก?"},choices:[{th:"โรงเรียนกำแพงวิทยา"},{th:"โรงเรียนสตูลวิทยา"},{th:"โรงเรียนวัดถ้ำเขาทอง"},{th:"โรงเรียนบ้านทุ่งหว้า"}],correct:0,fact:{th:"<b>โรงเรียนกำแพงวิทยา</b> มีชมรมธรณีวิทยาที่เก็บตัวอย่างฟอสซิลครบทั้ง 6 ยุค"}}
+];
+const TIME_PER_Q = 15, CIRC = 2*Math.PI*17;
+let qState = {list:[], idx:0, score:0, correct:0, streak:0, timer:null, timeLeft:15, answered:false};
+function shuffleArr(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function startQuiz(){ qState = {list: shuffleArr(QUESTIONS).slice(0,10), idx:0, score:0, correct:0, streak:0, timer:null, timeLeft:15, answered:false}; showScreen('screen-quiz'); renderQuestion(); }
+function renderQuestion(){
+  qState.answered=false;
+  const q = qState.list[qState.idx];
+  document.getElementById('qTag').textContent = tr(q.tag);
+  document.getElementById('qText').textContent = tr(q.q);
+  document.getElementById('scoreChip').textContent = `⭐ ${qState.score}`;
+  document.getElementById('qCounter').textContent = `ข้อ ${qState.idx+1} / ${qState.list.length}`;
+  const pct = (qState.idx/qState.list.length)*100;
+  document.getElementById('riverFill').style.width = pct+'%';
+  document.getElementById('kayak').style.left = pct+'%';
+  const choicesEl = document.getElementById('choices'); choicesEl.innerHTML='';
+  const letters=['ก','ข','ค','ง'];
+  q.choices.forEach((c,idx)=>{
+    const b=document.createElement('button'); b.className='choice-btn';
+    b.innerHTML = `<span class="letter">${letters[idx]}</span><span>${tr(c)}</span>`;
+    b.addEventListener('click', ()=>selectAnswer(idx));
+    choicesEl.appendChild(b);
+  });
+  document.getElementById('factBox').style.display='none';
+  document.getElementById('nextWrap').style.display='none';
+  startQTimer();
+}
+function startQTimer(){
+  clearInterval(qState.timer); qState.timeLeft = TIME_PER_Q; updateQTimerUI();
+  qState.timer = setInterval(()=>{ qState.timeLeft--; updateQTimerUI(); if(qState.timeLeft<=0){ clearInterval(qState.timer); if(!qState.answered) selectAnswer(-1); } },1000);
+}
+function updateQTimerUI(){ document.getElementById('timerNum').textContent = qState.timeLeft; document.getElementById('timerFg').style.strokeDashoffset = CIRC*(1-qState.timeLeft/TIME_PER_Q); }
+function selectAnswer(idx){
+  if(qState.answered) return; qState.answered=true; clearInterval(qState.timer);
+  const q = qState.list[qState.idx];
+  document.querySelectorAll('.choice-btn').forEach((b,i)=>{ b.disabled=true; if(i===q.correct) b.classList.add('correct'); else if(i===idx) b.classList.add('wrong'); });
+  if(idx===q.correct){ qState.streak++; const bonus=Math.min(qState.streak,5)*5, timeBonus=Math.max(qState.timeLeft,0)*2; qState.score += 100+bonus+timeBonus; qState.correct++; } else qState.streak=0;
+  document.getElementById('scoreChip').textContent = `⭐ ${qState.score}`;
+  const factBox=document.getElementById('factBox');
+  factBox.innerHTML=(idx===q.correct?'🎉 ถูกต้อง! ':'💡 ไม่เป็นไร มาดูเกร็ดความรู้กัน: ')+tr(q.fact);
+  factBox.style.display='block'; document.getElementById('nextWrap').style.display='block';
+}
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  qState.idx++;
+  if(qState.idx>=qState.list.length){
+    finishGame('quiz', qState.score, { emoji: qState.correct>=8?'🏆':qState.correct>=5?'🎖️':'🧭', mainStat: `${qState.correct}/${qState.list.length}`, mainLabel:'ตอบถูก', name:'คะแนนจากภารกิจ: ตอบคำถาม', retry: startQuiz, halfReached: qState.correct >= Math.ceil(qState.list.length/2) });
+  } else renderQuestion();
+});
+
+/* ============== GAME 2: MATCH (split image/text sides, combined score across 3 levels) ============== */
+const MATCH_LEVELS = [
+  {title:{th:"ด่าน 1: ฟอสซิลทะเลโบราณ"}, pairs:[
+    {art:'nautiloid',label:{th:"นอติลอยด์"}},{art:'ammonite',label:{th:"แอมโมไนต์"}},{art:'coral',label:{th:"ปะการัง"}},
+    {art:'snail',label:{th:"หอยโบราณ"}},{art:'trilobite',label:{th:"ไทรโลไบต์"}},{art:'bone',label:{th:"ฟอสซิลกระดูก"}}
+  ]},
+  {title:{th:"ด่าน 2: ถ้ำและหินงอกหินย้อย"}, pairs:[
+    {art:'cave1',label:{th:"ถ้ำเลสเตโกดอน"}},{art:'cave5',label:{th:"ถ้ำภูผาเพชร"}},{art:'cave4',label:{th:"ถ้ำทะลุ"}},
+    {art:'cave3',label:{th:"หินงอกหินย้อย"}},{art:'cave2',label:{th:"ปราสาทหินพันยอด"}}
+  ]},
+  {title:{th:"ด่าน 3: เกาะและแหล่งเรียนรู้"}, pairs:[
+    {art:'tarutaoBeach',label:{th:"เกาะตะรุเตา"}},{art:'lipe',label:{th:"เกาะหลีเป๊ะ"}},{art:'petra',label:{th:"หมู่เกาะเภตรา"}},
+    {art:'tarutaoForest',label:{th:"ป่าดิบชื้นเกาะตะรุเตา"}},{art:'museum',label:{th:"พิพิธภัณฑ์อุทยานธรณีโลกสตูล"}}
+  ]}
+];
+let matchSession = {levelScores:{}}; // levelIdx -> best score earned for that level this session
+const MATCH_MAX_SCORE = MATCH_LEVELS.reduce((s,l)=>s+l.pairs.length*110,0);
+function matchSessionTotal(){ return Object.values(matchSession.levelScores).reduce((a,b)=>a+b,0); }
+let mState = {levelIdx:0, artCards:[], labelCards:[], selectedArt:null, selectedLabel:null, matched:0, moves:0, score:0, lock:false};
+
+function renderLevelPicker(){
+  const el = document.getElementById('levelPicker'); el.innerHTML='';
+  document.getElementById('matchSessionTotal').textContent = `⭐ ${matchSessionTotal()}`;
+  MATCH_LEVELS.forEach((grid,i)=>{
+    const done = matchSession.levelScores[i]!==undefined;
+    const btn=document.createElement('div'); btn.className='level-btn'+(done?' done':'');
+    btn.innerHTML = `<div class="lnum">${i+1}</div><div><div class="ltitle">${tr(grid.title)}</div><div class="ldesc">${grid.pairs.length} คู่${done?' · เล่นแล้ว ⭐ '+matchSession.levelScores[i]:''}</div></div>${done?'<div class="ldone-check">✓</div>':''}`;
+    btn.addEventListener('click', ()=>startMatch(i));
+    el.appendChild(btn);
+  });
+}
+document.getElementById('matchBackBtn').addEventListener('click', enterHub);
+
+function startMatch(levelIdx){
+  mState = {levelIdx, artCards:[], labelCards:[], selectedArt:null, selectedLabel:null, matched:0, moves:0, score:0, lock:false};
+  const level = MATCH_LEVELS[levelIdx];
+  document.getElementById('matchLevelTitle').textContent = tr(level.title);
+  mState.artCards = shuffleArr(level.pairs.map((p,id)=>({pid:id, art:p.art})));
+  mState.labelCards = shuffleArr(level.pairs.map((p,id)=>({pid:id, label:p.label})));
+  mState.pairCount = level.pairs.length;
+  showScreen('screen-match');
+  document.getElementById('matchFactBox').style.display='none';
+  renderMatchSplit();
+}
+function renderMatchSplit(){
+  document.getElementById('matchScoreChip').textContent = `⭐ รวม ${matchSessionTotal()+mState.score}`;
+  document.getElementById('matchMovesChip').textContent = `🔄 ${mState.moves}`;
+  const artGrid = document.getElementById('matchArtGrid'); artGrid.innerHTML='';
+  mState.artCards.forEach((c,idx)=>{
+    const div = document.createElement('div'); div.className='match-art-card'; div.dataset.idx=idx;
+    div.innerHTML = svgIconHtml(c.art);
+    div.addEventListener('click', ()=>selectArt(idx));
+    artGrid.appendChild(div);
+  });
+  const labelGrid = document.getElementById('matchLabelGrid'); labelGrid.innerHTML='';
+  mState.labelCards.forEach((c,idx)=>{
+    const div = document.createElement('div'); div.className='match-label-card'; div.dataset.idx=idx;
+    div.textContent = tr(c.label);
+    div.addEventListener('click', ()=>selectLabel(idx));
+    labelGrid.appendChild(div);
+  });
+}
+function selectArt(idx){
+  if(mState.lock) return;
+  const el = document.querySelectorAll('#matchArtGrid .match-art-card')[idx];
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#matchArtGrid .match-art-card').forEach(c=>c.classList.remove('selected'));
+  mState.selectedArt = idx; el.classList.add('selected');
+  if(mState.selectedLabel!==null) checkMatchPair();
+}
+function selectLabel(idx){
+  if(mState.lock) return;
+  const el = document.querySelectorAll('#matchLabelGrid .match-label-card')[idx];
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#matchLabelGrid .match-label-card').forEach(c=>c.classList.remove('selected'));
+  mState.selectedLabel = idx; el.classList.add('selected');
+  if(mState.selectedArt!==null) checkMatchPair();
+}
+function checkMatchPair(){
+  mState.lock = true; mState.moves++;
+  document.getElementById('matchMovesChip').textContent = `🔄 ${mState.moves}`;
+  const artEl = document.querySelectorAll('#matchArtGrid .match-art-card')[mState.selectedArt];
+  const labelEl = document.querySelectorAll('#matchLabelGrid .match-label-card')[mState.selectedLabel];
+  const artCard = mState.artCards[mState.selectedArt], labelCard = mState.labelCards[mState.selectedLabel];
+  if(artCard.pid===labelCard.pid){
+    artEl.classList.add('matched'); labelEl.classList.add('matched');
+    mState.matched++; mState.score += 100;
+    document.getElementById('matchScoreChip').textContent = `⭐ รวม ${matchSessionTotal()+mState.score}`;
+    const fb = document.getElementById('matchFactBox');
+    fb.innerHTML = `🎉 จับคู่ถูก! <b>${tr(labelCard.label)}</b>`; fb.style.display='block';
+    mState.selectedArt=null; mState.selectedLabel=null; mState.lock=false;
+    if(mState.matched>=mState.pairCount) finishMatch();
+  } else {
+    artEl.classList.add('wrongflash'); labelEl.classList.add('wrongflash');
+    setTimeout(()=>{
+      artEl.classList.remove('selected','wrongflash'); labelEl.classList.remove('selected','wrongflash');
+      mState.selectedArt=null; mState.selectedLabel=null; mState.lock=false;
+    },700);
+  }
+}
+function finishMatch(){
+  const efficiency = Math.max(0, (mState.pairCount*2 - mState.moves))*10;
+  const levelScore = mState.score+efficiency;
+  matchSession.levelScores[mState.levelIdx] = Math.max(matchSession.levelScores[mState.levelIdx]||0, levelScore);
+  const allDone = MATCH_LEVELS.every((_,i)=>matchSession.levelScores[i]!==undefined);
+  const total = matchSessionTotal();
+  if(allDone){
+    finishGame('match', total, { emoji: total>=800?'🏆':'🎖️', mainStat: `${MATCH_LEVELS.length}/${MATCH_LEVELS.length}`, mainLabel:'ด่านที่เล่นครบ', name:'คะแนนรวมจากภารกิจ: จับคู่ภาพ (3 ด่าน)', retry: ()=>{ matchSession={levelScores:{}}; startMatch(0); }, halfReached: total >= MATCH_MAX_SCORE/2 });
+  } else {
+    document.getElementById('matchFactBox').innerHTML = `🎉 ผ่านด่านนี้แล้ว! ได้ ${levelScore} คะแนน — คะแนนสะสมตอนนี้ ${total} คะแนน<br>เลือกด่านต่อไปได้เลย`;
+    setTimeout(()=>{ showScreen('screen-match-menu'); renderLevelPicker(); }, 1400);
+  }
+}
+
+/* ============== GAME 3: SPOT THE DIFFERENCE (tile-grid, genuine differences) ============== */
+const SPOT_SCENES = [
+  {title:{th:"ฉาก 1: ฟอสซิลและถ้ำ"}, baseTiles:['nautiloid','ammonite','coral','snail','trilobite','bone','cave1','cave2','cave4','cave5','karst','museum'],
+    diffs:[ {idx:1,type:'swap',newArt:'trilobite'}, {idx:4,type:'flip'}, {idx:6,type:'gray'}, {idx:9,type:'rotate'}, {idx:11,type:'swap',newArt:'bone'} ]}
+];
+let sState = {sceneIdx:0, found:0, timeLeft:60, timer:null, foundSet:new Set(), score:0};
+function renderSpotPicker(){
+  const el = document.getElementById('spotPicker'); el.innerHTML='';
+  SPOT_SCENES.forEach((s,i)=>{
+    const btn=document.createElement('div'); btn.className='level-btn';
+    btn.innerHTML = `<div class="lnum">${i+1}</div><div><div class="ltitle">${tr(s.title)}</div><div class="ldesc">หาจุดต่าง 5 จุด ภายใน 60 วินาที</div></div>`;
+    btn.addEventListener('click', ()=>startSpot(i));
+    el.appendChild(btn);
+  });
+}
+document.getElementById('spotBackBtn').addEventListener('click', enterHub);
+function startSpot(idx){ sState = {sceneIdx:idx, found:0, timeLeft:60, timer:null, foundSet:new Set(), score:0}; showScreen('screen-spot'); renderSpotScene(); }
+function spotTileStyle(diff){
+  if(!diff) return '';
+  if(diff.type==='flip') return 'transform:scaleX(-1);';
+  if(diff.type==='rotate') return 'transform:rotate(180deg);';
+  if(diff.type==='gray') return 'filter:grayscale(1) brightness(0.75);';
+  return '';
+}
+function renderSpotScene(){
+  const scene = SPOT_SCENES[sState.sceneIdx];
+  const leftGrid = document.getElementById('spotGridLeft'); const rightGrid = document.getElementById('spotGridRight');
+  leftGrid.innerHTML=''; rightGrid.innerHTML='';
+  scene.baseTiles.forEach((art,idx)=>{
+    const diff = scene.diffs.find(d=>d.idx===idx);
+    const lTile = document.createElement('div'); lTile.className='spot-tile'; lTile.dataset.idx=idx;
+    lTile.innerHTML = svgIconHtml(art);
+    lTile.addEventListener('click', ()=>handleSpotClick(idx, lTile, rightGrid.children[idx]));
+    leftGrid.appendChild(lTile);
+
+    const rArt = (diff && diff.type==='swap') ? diff.newArt : art;
+    const rTile = document.createElement('div'); rTile.className='spot-tile'; rTile.dataset.idx=idx;
+    rTile.innerHTML = svgIconHtml(rArt);
+    const img = rTile.querySelector('img'); if(img && diff) img.style.cssText += spotTileStyle(diff);
+    rTile.addEventListener('click', ()=>handleSpotClick(idx, lTile, rTile));
+    rightGrid.appendChild(rTile);
+  });
+  document.getElementById('spotFound').textContent = `พบแล้ว 0/${scene.diffs.length}`;
+  document.getElementById('spotNextWrap').style.display='none';
+  clearInterval(sState.timer); updateSpotTimer();
+  sState.timer = setInterval(()=>{ sState.timeLeft--; updateSpotTimer(); if(sState.timeLeft<=0){ clearInterval(sState.timer); endSpotScene(); } },1000);
+}
+function updateSpotTimer(){ document.getElementById('spotTimer').textContent = `⏱️ ${sState.timeLeft} วิ`; }
+function handleSpotClick(idx, lTile, rTile){
+  const scene = SPOT_SCENES[sState.sceneIdx];
+  if(sState.foundSet.has(idx)) return;
+  const isDiff = scene.diffs.some(d=>d.idx===idx);
+  if(isDiff){
+    sState.foundSet.add(idx); sState.found++; sState.score += 100+sState.timeLeft;
+    lTile.classList.add('found'); rTile.classList.add('found');
+    document.getElementById('spotFound').textContent = `พบแล้ว ${sState.found}/${scene.diffs.length}`;
+    if(sState.found>=scene.diffs.length) endSpotScene();
+  } else {
+    [lTile,rTile].forEach(t=>{ t.classList.add('miss-flash'); setTimeout(()=>t.classList.remove('miss-flash'),350); });
+  }
+}
+function endSpotScene(){ clearInterval(sState.timer); document.getElementById('spotNextWrap').style.display='block'; }
+document.getElementById('spotNextBtn').addEventListener('click', ()=>{
+  const isLast = sState.sceneIdx >= SPOT_SCENES.length-1;
+  const foundCount = sState.found, totalCount = SPOT_SCENES[sState.sceneIdx].diffs.length, sc = sState.score, curIdx = sState.sceneIdx;
+  finishGame('spot', sc, { emoji: foundCount>=totalCount?'🏆':'🔍', mainStat: `${foundCount}/${totalCount}`, mainLabel:'จุดที่พบ', name:'คะแนนจากภารกิจ: จับผิดภาพ', retry: ()=>startSpot(isLast?0:curIdx), halfReached: foundCount >= Math.ceil(totalCount/2) });
+  if(!isLast) document.getElementById('retryBtn').onclick = ()=>startSpot(curIdx+1);
+});
+
+/* ============== GAME 4: DRAG/SELECT PHOTOS TO REAL SATUN MAP ============== */
+const DRAG_LEAFLET_ZONES = [
+  {id:"cave1", name:"ถ้ำเลสเตโกดอน (ทุ่งหว้า)", lat: 7.084, lng: 99.740},
+  {id:"museum", name:"พิพิธภัณฑ์อุทยานธรณีโลกสตูล (ทุ่งหว้า)", lat: 7.106, lng: 99.751},
+  {id:"cave5", name:"ถ้ำภูผาเพชร (มะนัง)", lat: 6.963, lng: 99.958},
+  {id:"cave4", name:"ถ้ำทะลุ (ละงู)", lat: 6.877, lng: 99.736},
+  {id:"cave3", name:"หินงอกหินย้อยละงู (ละงู)", lat: 6.850, lng: 99.720},
+  {id:"cave2", name:"ปราสาทหินพันยอด (อช.หมู่เกาะเภตรา)", lat: 6.837, lng: 99.782},
+  {id:"tarutao", name:"อช.ตะรุเตา", lat: 6.600, lng: 99.650},
+  {id:"lipe", name:"เกาะหลีเป๊ะ", lat: 6.488, lng: 99.300}
+];
+
+const DRAG_ITEMS = [
+  {id:1, label:"ถ้ำเลสเตโกดอน", art:'cave1', zone:"cave1"},
+  {id:2, label:"พิพิธภัณฑ์อุทยานธรณีโลกสตูล", art:'museum', zone:"museum"},
+  {id:3, label:"ถ้ำภูผาเพชร", art:'cave5', zone:"cave5"},
+  {id:4, label:"ถ้ำทะลุ", art:'cave3', zone:"cave3"},
+  {id:5, label:"หินงอกหินย้อยละงู", art:'cave3', zone:"cave3"},
+  {id:6, label:"ปราสาทหินพันยอด", art:'cave2', zone:"cave2"},
+  {id:7, label:"เกาะหลีเป๊ะ", art:'lipe', zone:"lipe"},
+  {id:8, label:"เกาะตะรุเตา", art:'tarutaoBeach', zone:"tarutao"}
+];
+
+let dState = {items:[], placements:{}, selected:null, score:0, map:null, markers:{}, submitted:false};
+
+function startDragMap(){
+  dState = {items: shuffleArr(DRAG_ITEMS), placements:{}, selected:null, score:0, map: dState.map, markers:{}, submitted:false};
+  showScreen('screen-dragmap');
+  
+  if(!dState.map) {
+    dState.map = L.map('realDragMap').setView([6.750, 99.650], 9);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© OpenStreetMap'
+    }).addTo(dState.map);
+  }
+  
+  setTimeout(() => dState.map.invalidateSize(), 200);
+  renderDragMap();
+}
+
+function renderDragMap(){
+  Object.values(dState.markers).forEach(m => m.remove());
+  dState.markers = {};
+
+  DRAG_LEAFLET_ZONES.forEach(z => {
+    const customIcon = L.divIcon({ className: 'leaflet-zone-pin-wrap', html: `<div class="zone-pin">📍</div>`, iconSize: [35, 35], iconAnchor: [17, 17] });
+    const marker = L.marker([z.lat, z.lng], {icon: customIcon}).addTo(dState.map);
+    marker.bindTooltip(z.name, {permanent: false, direction: 'top'});
+    marker.on('click', () => {
+      if(dState.submitted) return;
+      if(dState.placements[z.id]){
+        // pick it back up (put back in tray)
+        const itemId = dState.placements[z.id];
+        delete dState.placements[z.id];
+        const item = DRAG_ITEMS.find(i=>i.id===itemId);
+        if(item && !dState.items.find(i=>i.id===itemId)) dState.items.push(item);
+        marker.setIcon(customIcon);
+      } else if(dState.selected !== null) {
+        placeItem(dState.selected, z.id, marker, customIcon);
+      }
+    });
+    dState.markers[z.id] = marker;
+  });
+
+  renderDragTray(); 
+  updateDragHud();
+}
+
+function placeItem(itemId, zoneId, marker){
+  const item = DRAG_ITEMS.find(i=>i.id===itemId);
+  if(!item) return;
+  dState.placements[zoneId] = itemId;
+  const placedIcon = L.divIcon({ className: 'leaflet-zone-pin-wrap', html: `<div class="zone-pin filled thumbfilled">${svgIconHtml(item.art)}</div>`, iconSize: [38, 38], iconAnchor: [19, 19] });
+  marker.setIcon(placedIcon);
+  dState.items = dState.items.filter(i=>i.id!==itemId);
+  dState.selected = null;
+  renderDragTray(); updateDragHud();
+}
+
+function renderDragTray(){
+  const tray = document.getElementById('dragCardTray'); tray.innerHTML='';
+  dState.items.forEach(it=>{
+    const card = document.createElement('div');
+    card.className='drag-card'; card.dataset.id = it.id;
+    card.innerHTML = `<span class="thumb">${svgIconHtml(it.art)}</span><span>${it.label}</span>`;
+    card.addEventListener('click', ()=>{
+      if(dState.submitted) return;
+      document.querySelectorAll('.drag-card').forEach(c=>c.classList.remove('selected'));
+      if(dState.selected===it.id){ dState.selected=null; } else { dState.selected=it.id; card.classList.add('selected'); }
+    });
+    tray.appendChild(card);
+  });
+}
+
+function updateDragHud(){
+  document.getElementById('dragScoreChip').textContent = `⭐ ${dState.score}`;
+  document.getElementById('dragLeftChip').textContent = `เหลือ ${dState.items.length} ภาพ`;
+  const allPlaced = dState.items.length===0;
+  document.getElementById('dragSubmitWrap').style.display = (allPlaced && !dState.submitted) ? 'block' : 'none';
+}
+
+document.getElementById('dragSubmitBtn').addEventListener('click', ()=>{
+  if(dState.submitted) return;
+  dState.submitted = true;
+  let correctCount = 0;
+  DRAG_LEAFLET_ZONES.forEach(z=>{
+    const placedItemId = dState.placements[z.id];
+    const marker = dState.markers[z.id];
+    if(!placedItemId){ return; }
+    const item = DRAG_ITEMS.find(i=>i.id===placedItemId);
+    const isCorrect = item.zone === z.id;
+    if(isCorrect){ correctCount++; dState.score += 100; }
+    const resultIcon = L.divIcon({
+      className: 'leaflet-zone-pin-wrap '+(isCorrect?'success':'fail'),
+      html: `<div class="zone-pin thumbfilled ${isCorrect?'correctzone':''}" style="${isCorrect?'':'border:3px solid var(--coral);'}">${svgIconHtml(item.art)}${isCorrect?'':'<span style=\"position:absolute;top:-4px;right:-4px;background:var(--coral);color:#fff;border-radius:50%;width:16px;height:16px;font-size:11px;display:flex;align-items:center;justify-content:center;\">✕</span>'}</div>`,
+      iconSize: [38, 38], iconAnchor: [19, 19]
+    });
+    marker.setIcon(resultIcon);
+  });
+  document.getElementById('dragScoreChip').textContent = `⭐ ${dState.score}`;
+  document.getElementById('dragSubmitWrap').style.display='none';
+  document.getElementById('dragLeftChip').textContent = `ถูก ${correctCount}/${DRAG_ITEMS.length}`;
+  document.getElementById('dragNextWrap').style.display='block';
+  document.getElementById('dragFinishBtn').dataset.correct = correctCount;
+});
+
+document.getElementById('dragFinishBtn').addEventListener('click', ()=>{
+  const correctCount = parseInt(document.getElementById('dragFinishBtn').dataset.correct||'0');
+  finishGame('dragmap', dState.score, { emoji: correctCount===DRAG_ITEMS.length?'🏆':'📍', mainStat: `${correctCount}/${DRAG_ITEMS.length}`, mainLabel:'วางถูกตำแหน่ง', name:'คะแนนจากภารกิจ: แผนที่สตูล', retry: startDragMap, halfReached: correctCount >= Math.ceil(DRAG_ITEMS.length/2) });
+});
+
+/* ==================== GAME 5: GEOGUESS ==================== */
+const GEO_ROUNDS = [
+  {art:'cave4', lat: 6.877, lng: 99.736, clue:{th:"ถ้ำที่เกิดจากการละลายของหินปูนยุคออร์โดวิเชียน ตำบลเขาขาว อยู่ตรงไหนในแผนที่สตูล?", en:"An Ordovician limestone cave in Khao Khao. Find it on the map."}, label:{th:"ถ้ำทะลุ (ต.เขาขาว)"}},
+  {art:'cave2', lat: 6.837, lng: 99.782, clue:{th:"ปราสาทหินพันยอด อายุ 450 ล้านปี แหล่งท่องเที่ยวเด่นของเกาะเขาใหญ่ อยู่ตรงไหน?", en:"450-million-year-old Rock Castle at Khao Yai Island. Pin it!"}, label:{th:"ปราสาทหินพันยอด"}},
+  {art:'boat', lat: 6.843, lng: 99.775, clue:{th:"ท่าเรือหลักของอุทยานและจุดขึ้นเรือไปเที่ยวเกาะหลีเป๊ะ อยู่ตรงไหน?", en:"The main pier for tourist boats to Lipe Island. Where is it?"}, label:{th:"ท่าเรือปากบารา"}},
+  {art:'lipe', lat: 6.488, lng: 99.300, clue:{th:"เกาะท่องเที่ยวชื่อดัง น้ำทะเลใส ทรายขาวละเอียดดั่งแป้ง อยู่ส่วนไหนในทะเลอันดามันสตูล?", en:"The world famous paradise island with crystal clear water. Where is it?"}, label:{th:"เกาะหลีเป๊ะ"}},
+  {art:'tarutaoForest', lat: 6.583, lng: 99.640, clue:{th:"เกาะตะรุเตา อดีตดินแดนประวัติศาสตร์และอุทยานแห่งชาติทางทะเลแห่งแรกของไทย อยู่ตรงไหน?", en:"Tarutao Island, the historic and first marine national park of Thailand."}, label:{th:"เกาะตะรุเตา"}}
+];
+
+let gState = {roundIdx: 0, score: 0, map: null, userMarker: null, actualMarker: null, polyline: null};
+
+function startGeoGuess() {
+  gState.roundIdx = 0;
+  gState.score = 0;
+  showScreen('screen-geoguess');
+  
+  if(!gState.map) {
+    gState.map = L.map('realGeoMap').setView([6.700, 99.600], 9);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© OpenStreetMap'
+    }).addTo(gState.map);
+    
+    gState.map.on('click', function(e) {
+      if(document.getElementById('geoNextWrap').style.display === 'block') return;
+      if(!gState.userMarker) {
+        gState.userMarker = L.marker(e.latlng).addTo(gState.map);
+      } else {
+        gState.userMarker.setLatLng(e.latlng);
+      }
+      document.getElementById('geoConfirmBox').style.display = 'block';
+    });
+  }
+  
+  setTimeout(() => gState.map.invalidateSize(), 200);
+  renderGeoRound();
+}
+
+function renderGeoRound() {
+  const round = GEO_ROUNDS[gState.roundIdx];
+  document.getElementById('geoScoreChip').textContent = `⭐ ${gState.score}`;
+  document.getElementById('geoRoundChip').textContent = T('geoRound', {n: gState.roundIdx+1, total: GEO_ROUNDS.length});
+  document.getElementById('geoClueText').innerHTML = `<b>คำใบ้:</b> ${tr(round.clue)}`;
+  document.getElementById('geoClueArt').innerHTML = svgIconHtml(round.art);
+  
+  document.getElementById('geoConfirmBox').style.display = 'none';
+  document.getElementById('geoNextWrap').style.display = 'none';
+  
+  if(gState.userMarker) { gState.userMarker.remove(); gState.userMarker = null; }
+  if(gState.actualMarker) { gState.actualMarker.remove(); gState.actualMarker = null; }
+  if(gState.polyline) { gState.polyline.remove(); gState.polyline = null; }
+  
+  gState.map.setView([6.700, 99.600], 9);
+}
+
+document.getElementById('geoConfirmYes').addEventListener('click', () => {
+  document.getElementById('geoConfirmBox').style.display = 'none';
+  const round = GEO_ROUNDS[gState.roundIdx];
+  const actualLocation = L.latLng(round.lat, round.lng);
+  
+  const distanceMeters = gState.map.distance(gState.userMarker.getLatLng(), actualLocation);
+  const distanceKm = (distanceMeters / 1000).toFixed(1);
+  
+  const greenIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41]
+  });
+  gState.actualMarker = L.marker(actualLocation, {icon: greenIcon}).addTo(gState.map);
+  
+  gState.polyline = L.polyline([gState.userMarker.getLatLng(), actualLocation], {color: 'red', dashArray: '5, 5'}).addTo(gState.map);
+  gState.map.fitBounds(gState.polyline.getBounds(), {padding: [40, 40]});
+  
+  let roundScore = Math.max(0, 500 - Math.floor(distanceKm * 5));
+  if (distanceKm < 3) roundScore = 500;
+  gState.score += roundScore;
+  
+  document.getElementById('geoScoreChip').textContent = `⭐ ${gState.score}`;
+  document.getElementById('geoClueText').innerHTML = T('geoResultText', {
+    label: tr(round.label), dist: distanceKm, score: roundScore
+  });
+  
+  document.getElementById('geoNextWrap').style.display = 'block';
+});
+
+document.getElementById('geoConfirmNo').addEventListener('click', () => {
+  document.getElementById('geoConfirmBox').style.display = 'none';
+  if(gState.userMarker) { gState.userMarker.remove(); gState.userMarker = null; }
+});
+
+document.getElementById('geoNextBtn').addEventListener('click', () => {
+  gState.roundIdx++;
+  if (gState.roundIdx >= GEO_ROUNDS.length) {
+     finishGame('geoguess', gState.score, { emoji: gState.score>=1800?'🏆':gState.score>=1000?'🎖️':'🧭', mainStat: `${GEO_ROUNDS.length}`, mainLabel:'จำนวนรอบที่ทาย', name:'คะแนนจากภารกิจ: ทายพิกัดสตูล', retry: startGeoGuess, halfReached: gState.score >= (500*GEO_ROUNDS.length)/2 });
+  } else {
+     renderGeoRound();
+  }
+});
+
+document.getElementById('backHubBtn').addEventListener('click', enterHub);
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* รันระบบเริ่มต้นทันทีที่หน้าเว็บโหลดเสร็จเพื่อแก้ Error หน้าแรกค้าง */
+window.onload = function() {
+  renderAvatarGrid();
+  updateStartBtn();
+};
+</script>
+</body>
+</html>
