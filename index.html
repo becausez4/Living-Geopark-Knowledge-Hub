@@ -214,6 +214,35 @@ input[type="text"]:focus{border-color:var(--sea-turquoise);}
 .lb-row{display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:12px; margin-bottom:6px; background:var(--limestone); font-size:13.5px;}
 .lb-row.me{background:#FFF1EC; border:1.5px solid var(--coral);}
 
+.nav-banner{display:flex; align-items:center; gap:14px; background:linear-gradient(135deg, var(--sea-turquoise), var(--cave-mid)); border-radius:18px; padding:16px 16px; cursor:pointer; margin:14px 0 4px; box-shadow:0 8px 18px rgba(63,191,181,.35); border:none;}
+.nav-banner:hover{filter:brightness(1.04);}
+.nav-banner .nicon{font-size:32px; flex-shrink:0;}
+.nav-banner .nbody{flex:1;}
+.nav-banner .ntitle{font-family:'Kanit',sans-serif; font-weight:800; font-size:16px; color:#fff;}
+.nav-banner .ndesc{font-size:12px; color:rgba(255,255,255,.85); margin-top:2px;}
+.nav-banner .narrow{font-size:22px; color:#fff; flex-shrink:0;}
+
+.cat-header{display:flex; align-items:center; gap:10px; margin-bottom:2px;}
+.cat-header .chicon{font-size:26px;}
+.cat-header h2{font-family:'Kanit',sans-serif; font-size:17px; color:var(--ink); margin:0;}
+
+.cat-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:12px;}
+.cat-card{background:#fff; border:2px solid var(--limestone-dark); border-radius:16px; padding:14px 10px; text-align:center; cursor:pointer;}
+.cat-card:hover{border-color:var(--sea-turquoise);}
+.cat-card .cicon{font-size:28px;}
+.cat-card .ctitle{font-family:'Kanit',sans-serif; font-weight:700; font-size:12.5px; color:var(--ink); margin-top:6px; line-height:1.3;}
+.cat-card .ccount{font-size:10.5px; color:var(--ink-soft); margin-top:2px;}
+
+.shop-list{display:flex; flex-direction:column; gap:10px; margin-top:12px;}
+.shop-card{display:flex; align-items:center; gap:12px; background:#fff; border:2px solid var(--limestone-dark); border-radius:16px; padding:10px 12px; cursor:pointer;}
+.shop-card:hover{border-color:var(--sea-turquoise);}
+.shop-thumb{width:56px; height:56px; border-radius:12px; overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:26px; background:linear-gradient(135deg, var(--fossil-amber), var(--sea-turquoise)); color:#fff;}
+.shop-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+.shop-body{flex:1;}
+.shop-name{font-family:'Kanit',sans-serif; font-weight:700; font-size:14.5px; color:var(--ink);}
+.shop-desc{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+.shop-dist{font-size:11px; color:var(--sea-turquoise); font-weight:700; margin-top:3px; font-family:'Kanit',sans-serif;}
+.shop-go{font-size:19px; color:var(--cave-mid); flex-shrink:0;}
 .footer-note{text-align:center; font-size:10.5px; color:rgba(243,234,214,.55); margin-top:14px; line-height:1.6;}
 .screen{display:none;}
 .screen.active{display:block; animation:fadeIn .35s ease;}
@@ -254,6 +283,14 @@ input[type="text"]:focus{border-color:var(--sea-turquoise);}
         </div>
         <button class="icon-btn" id="changePlayerBtn2">เปลี่ยนผู้เล่น</button>
       </div>
+      <button class="nav-banner" id="openNavBtn">
+       <div class="nicon">🧭</div>
+       <div class="nbody">
+        <div class="ntitle">ที่นี่นำทาง</div>
+        <div class="ndesc">ร้านอาหาร ร้านค้า และสิ่งอำนวยความสะดวกใกล้เคียง</div>
+      </div>
+      <div class="narrow">›</div>
+     </button>
       <div class="field-label" id="lblMissions" style="margin-top:4px;">🗺️ เลือกภารกิจที่อยากเล่น</div>
       <div class="game-grid" id="gameGrid">
         <div class="game-card" data-game="quiz">
@@ -286,6 +323,7 @@ input[type="text"]:focus{border-color:var(--sea-turquoise);}
           <div class="garrow">›</div>
         </div>
       </div>
+      <button class="btn btn-ghost" id="openSurveyBtn" style="margin-top:16px;">📝 แบบประเมินความพึงพอใจ</button>
       <div class="stamp-section" id="stampSection">
         <div class="stamp-header">
           <h3>📮 สมุดสะสมแสตมป์</h3>
@@ -298,7 +336,23 @@ input[type="text"]:focus{border-color:var(--sea-turquoise);}
         <h3 id="lbTitle">🥇 กระดานผู้นำรวมทุกภารกิจ</h3>
         <div id="lbListHub"></div>
       </div>
-      <button class="btn btn-ghost" id="openSurveyBtn" style="margin-top:16px;">📝 แบบประเมินความพึงพอใจ</button>
+    </div>
+
+    <!-- NAVIGATE: CATEGORY LIST -->
+    <div class="screen" id="screen-nav-categories">
+      <div class="cat-header"><span class="chicon">🧭</span><h2>ที่นี่นำทาง</h2></div>
+      <div class="field-label" style="margin-top:2px;">เลือกหมวดหมู่ที่ต้องการไปนำทาง</div>
+      <div class="cat-grid" id="navCatGrid"></div>
+      <div class="back-row"><button class="btn btn-ghost" id="navCatBackBtn">‹ กลับสู่ศูนย์ภารกิจ</button></div>
+    </div>
+
+<!-- NAVIGATE: SHOP LIST FOR A CATEGORY -->
+    <div class="screen" id="screen-nav-shops">
+      <div class="cat-header"><span class="chicon" id="navShopIcon">🍜</span><h2 id="navShopCatTitle">ร้านอาหาร</h2></div>
+      <div class="field-label" style="margin-top:2px;">แตะที่ร้านเพื่อเริ่มนำทางด้วย Google Maps</div>
+      <div style="font-size:11px; color:var(--ink-soft); margin-top:-4px;">📍 เรียงจากร้านที่ใกล้คุณที่สุดไปไกลสุด (ต้องอนุญาตการเข้าถึงตำแหน่ง)</div>
+      <div class="shop-list" id="navShopList"></div>
+      <div class="back-row"><button class="btn btn-ghost" id="navShopBackBtn">‹ กลับไปเลือกหมวดหมู่</button></div>
     </div>
 
     <!-- SATISFACTION SURVEY -->
@@ -512,6 +566,227 @@ const STAMP_IMG = {
   dragmap: 'https://i.ibb.co/LXZs5Zmv/IMG-4106.png',
   geoguess: 'https://i.ibb.co/vtmv14F/IMG-4105.png'
 };
+
+
+/* ================== ที่นี่นำทาง (NAVIGATE HERE): หมวดหมู่ + ร้านค้า ==================
+   ข้อมูลร้านค้าจริงครอบคลุมทั้ง 7 อำเภอของจังหวัดสตูล (เมืองสตูล, ควนโดน, ควนกาหลง, ท่าแพ, ละงู, ทุ่งหว้า, มะนัง)
+   - แก้ไข/เพิ่ม/ลบร้านได้อิสระในอาเรย์ NAV_CATEGORIES ด้านล่างนี้
+   - แต่ละร้านใส่ "img" เป็นลิงก์รูปภาพจริงได้ (เว้นว่าง = ใช้ไอคอนอิโมจิแทนไปก่อน)
+   - lat/lng เป็นพิกัดจริงจาก Google Maps ใช้นำทางได้แม่นยำ และใช้คำนวณระยะทางจากตำแหน่งผู้เล่นด้วย
+*/
+const NAV_CATEGORIES = [
+  {id:'food', icon:'🍜', label:{th:'ร้านอาหาร'}, shops:[
+    {name:'Nong Nee Restaurant', desc:'อ.เมืองสตูล • อาหารใต้ ซีฟู้ด', lat:6.6104755, lng:100.0678535, img:''},
+    {name:'Nergara Restaurant', desc:'อ.เมืองสตูล • อาหารฮาลาล', lat:6.614489, lng:100.0669406, img:''},
+    {name:'Kookporn Restaurant', desc:'อ.เมืองสตูล • ซีฟู้ด', lat:6.6153165, lng:100.0734521, img:''},
+    {name:'ง่วนนมสด Halal', desc:'อ.ควนโดน • ของหวาน อาหารว่าง', lat:6.7857144, lng:100.0794069, img:''},
+    {name:'ร้านโกปี้ริมคลอง By.Khumracha', desc:'อ.ควนโดน • กาแฟดริป อาหาร', lat:6.8027366, lng:100.0879219, img:''},
+    {name:'Krua Chaiyasit', desc:'อ.ควนกาหลง • อาหารฮาลาล', lat:6.8642216, lng:100.1179314, img:''},
+    {name:'Corner Cafe', desc:'อ.ควนกาหลง • อาหารฮาลาล คาเฟ่', lat:6.8297419, lng:100.0964362, img:''},
+    {name:'ราชากิน สาขาท่าแพ', desc:'อ.ท่าแพ • อาหารฮาลาล', lat:6.7914458, lng:99.9644932, img:''},
+    {name:'ร้านริมนา อาหารอร่อย สตูล Adam', desc:'อ.ท่าแพ • อาหารทะเล', lat:6.8235904, lng:99.9342803, img:''},
+    {name:'Thangleuak Restaurant', desc:'อ.ละงู (ปากบารา) • ซีฟู้ดวิวทะเล', lat:6.8510315, lng:99.7332893, img:''},
+    {name:'ครัวริมเล ปากบารา', desc:'อ.ละงู (ปากบารา) • ซีฟู้ดริมหาด', lat:6.8509252, lng:99.7334867, img:''},
+    {name:'ร้านโสแดง ทุ่งหว้า', desc:'อ.ทุ่งหว้า • อาหารใต้', lat:7.10049, lng:99.7524719, img:''},
+    {name:'Long Khao Cafe', desc:'อ.ทุ่งหว้า • คาเฟ่ + อาหาร', lat:7.0524234, lng:99.6903901, img:''},
+    {name:'เคียงคลอง ชิวเอ้าท์ @ มะนัง', desc:'อ.มะนัง • อาหาร บรรยากาศริมคลอง', lat:6.999383, lng:99.9106041, img:''}
+  ]},
+  {id:'cafe', icon:'☕', label:{th:'ร้านกาแฟ / เครื่องดื่ม'}, shops:[
+    {name:'Juangjai - จวงใจ', desc:'อ.เมืองสตูล • คาเฟ่บ้านไม้เก่า', lat:6.628367, lng:100.0651409, img:''},
+    {name:'Ban Rao Drip Cafe', desc:'อ.เมืองสตูล • กาแฟดริป', lat:6.6113839, lng:100.0650357, img:''},
+    {name:'UnLocated.', desc:'อ.เมืองสตูล • คาเฟ่ยอดฮิต', lat:6.6140295, lng:100.0691113, img:''},
+    {name:'แลเขา คอฟฟี่ (Lae Khao Coffee)', desc:'อ.เมืองสตูล • วิวภูเขา', lat:6.6250987, lng:100.0627831, img:''},
+    {name:'Khap Samut Cafe & Eatery', desc:'อ.ละงู (ปากบารา) • วิวทะเล', lat:6.8523954, lng:99.7299978, img:''},
+    {name:'313 Pakbara Cafe', desc:'อ.ละงู (ปากบารา) • ริมทะเล', lat:6.8469362, lng:99.7408819, img:''},
+    {name:'BARA BARA Coffee', desc:'อ.ละงู • มีพื้นที่ทำงาน', lat:6.8828285, lng:99.7839847, img:''}
+  ]},
+  {id:'convenience', icon:'🏪', label:{th:'ร้านสะดวกซื้อ'}, shops:[
+    {name:'7-Eleven ศุลกานุกูล ซอย 9', desc:'อ.เมืองสตูล • เปิด 24 ชม.', lat:6.6038131, lng:100.0637634, img:''},
+    {name:'7-Eleven (สตูลธานี)', desc:'อ.เมืองสตูล • เปิด 24 ชม.', lat:6.6089252, lng:100.064528, img:''},
+    {name:'7-Eleven ควนโดน', desc:'อ.ควนโดน • เปิด 24 ชม.', lat:6.7884415, lng:100.0801353, img:''},
+    {name:'7-Eleven ควนสะตอ', desc:'อ.ควนโดน • เปิด 24 ชม.', lat:6.7758531, lng:100.0947658, img:''},
+    {name:'ร้าน จี.เอ.ซุปเปอร์ค้าส่ง', desc:'อ.ควนกาหลง • ของใช้ในบ้าน', lat:6.8608092, lng:100.0163712, img:''},
+    {name:'ตาต้ามินิมาร์ท', desc:'อ.ควนกาหลง • ของใช้ประจำวัน', lat:6.9003759, lng:100.1277946, img:''},
+    {name:'7-Eleven ท่าแพ (สตูล)', desc:'อ.ท่าแพ • เปิด 24 ชม.', lat:6.7922211, lng:99.9628026, img:''},
+    {name:'7-Eleven กำแพง', desc:'อ.ละงู • เปิด 24 ชม.', lat:6.878531, lng:99.7831314, img:''},
+    {name:'Kawha Convenient Store', desc:'อ.ละงู (เขาขาว) • ราคาถูก', lat:6.9278359, lng:99.8334263, img:''},
+    {name:'7-Eleven ทุ่งหว้า', desc:'อ.ทุ่งหว้า • เปิด 24 ชม.', lat:7.1043683, lng:99.7547153, img:''},
+    {name:'โลตัส โก เฟรช ทุ่งหว้า', desc:'อ.ทุ่งหว้า • ซูเปอร์มาร์เก็ตย่อม', lat:7.1045537, lng:99.7550144, img:''},
+    {name:'7-Eleven มะนัง #10009', desc:'อ.มะนัง • เปิด 24 ชม.', lat:6.9989361, lng:99.9122167, img:''}
+  ]},
+  {id:'stationery', icon:'✏️', label:{th:'อุปกรณ์การเรียน / เครื่องเขียน'}, shops:[
+    {name:'ร้านทูยูสเตชั่นเนอรี่', desc:'อ.เมืองสตูล • เครื่องเขียนครบวงจร', lat:6.6428425, lng:100.0735509, img:''},
+    {name:'ร้านพินิจพิทยา (สตูล)', desc:'อ.เมืองสตูล • อุปกรณ์การเรียน', lat:6.6160445, lng:100.0694415, img:''},
+    {name:'OfficeMate Plus สาขาเมืองสตูล', desc:'อ.เมืองสตูล • เครื่องเขียน/สำนักงาน', lat:6.6292095, lng:100.0690157, img:''},
+    {name:'ร้านคลังยาฉลุงเครื่องเขียน', desc:'อ.เมืองสตูล (ฉลุง) • อุปกรณ์การเรียน', lat:6.7267088, lng:100.0667266, img:''},
+    {name:'M&G เครื่องเขียน สาขาสตูล', desc:'อ.ควนโดน • เครื่องเขียนครบวงจร', lat:6.7844906, lng:100.0789349, img:''},
+    {name:'Fursan Stationery & S.B. Paper Print', desc:'อ.ท่าแพ • เครื่องเขียน+ปริ้นท์', lat:6.8262194, lng:99.9326388, img:''}
+  ]},
+  {id:'printing', icon:'🖨️', label:{th:'ถ่ายเอกสาร / ปริ้นท์งาน'}, shops:[
+    {name:'พรพรรณเอกสาร', desc:'อ.เมืองสตูล • ถ่ายเอกสาร ปริ้นท์งาน', lat:6.6188491, lng:100.0671525, img:''},
+    {name:'ร้านถ่ายเอกสารนันทวัน', desc:'อ.เมืองสตูล • ถ่ายเอกสาร', lat:6.624318, lng:100.0649441, img:''},
+    {name:'Chalung Copy Print Center', desc:'อ.เมืองสตูล (ฉลุง) • ปริ้นท์งาน', lat:6.7250792, lng:100.0671048, img:''},
+    {name:'Phonphan Printing Center', desc:'อ.เมืองสตูล • งานพิมพ์ ปริ้นท์', lat:6.6188915, lng:100.0672016, img:''},
+    {name:'Fursan Stationery & S.B. Paper Print', desc:'อ.ท่าแพ • ปริ้นท์+เครื่องเขียน', lat:6.8262194, lng:99.9326388, img:''}
+  ]},
+  {id:'bakery', icon:'🥐', label:{th:'เบเกอรี่ / ขนมหวาน'}, shops:[
+    {name:'La-Ngu Bakery', desc:'อ.ละงู • เค้ก ขนมอบ', lat:6.8780853, lng:99.782552, img:''},
+    {name:'สามพี่น้องเบเกอรี่', desc:'อ.ละงู • เค้กสวย หลากดีไซน์', lat:6.8686684, lng:99.7812746, img:''},
+    {name:'กะนาเบเกอรี่', desc:'อ.ควนโดน • ขนมอบสดใหม่', lat:6.7361364, lng:100.0844965, img:''},
+    {name:'ร้านเค้กบ้านกะต้า', desc:'อ.เมืองสตูล • เค้กสั่งทำ', lat:6.6240327, lng:100.0647605, img:''},
+    {name:'Happyjolie', desc:'อ.เมืองสตูล • ขนมปังปิ้ง ของหวาน', lat:6.6143679, lng:100.0672524, img:''}
+  ]},
+  {id:'pharmacy', icon:'💊', label:{th:'ร้านยา / เวชภัณฑ์'}, shops:[
+    {name:'ส.เภสัช สตูล (S. Chemist)', desc:'อ.เมืองสตูล • เปิดถึง 21:00 น.', lat:6.6654585, lng:100.0750659, img:''},
+    {name:'สโตยเภสัช', desc:'อ.เมืองสตูล • เปิดถึง 23:00 น.', lat:6.669841, lng:100.0830614, img:''},
+    {name:'ร้านยาภาสินีเภสัช', desc:'อ.ควนโดน • ปรึกษาเภสัชกร', lat:6.7833283, lng:100.0785737, img:''},
+    {name:'Tamrab Ya', desc:'อ.ควนกาหลง', lat:6.8608279, lng:100.0161457, img:''},
+    {name:'153 บ้านยา (153 Pharmacy)', desc:'อ.ควนกาหลง', lat:6.8343933, lng:100.0996375, img:''},
+    {name:'Tha Phae Phesat Pharmacy', desc:'อ.ท่าแพ', lat:6.7907819, lng:99.9683274, img:''},
+    {name:'คลินิกยา ละงู', desc:'อ.ละงู • เปิดถึง 22:00 น.', lat:6.872613, lng:99.7820168, img:''},
+    {name:'NasNeen Pharmacy', desc:'อ.ละงู (ปากบารา)', lat:6.8604205, lng:99.722954, img:''},
+    {name:'พนิดาเภสัช', desc:'อ.ทุ่งหว้า', lat:7.1041562, lng:99.7546584, img:''},
+    {name:'สุวรรณภพโอสถ', desc:'อ.มะนัง', lat:6.9938726, lng:99.9139174, img:''}
+  ]},
+  {id:'market', icon:'🍉', label:{th:'ตลาดสด / ผลไม้ของสด'}, shops:[
+    {name:'ตลาดเทศบาลเมืองสตูล', desc:'อ.เมืองสตูล • ตลาดเช้าใจกลางเมือง', lat:6.6132839, lng:100.0617337, img:''},
+    {name:'ตลาดแลจันทร์ (Night Market)', desc:'อ.เมืองสตูล • ตลาดกลางคืน', lat:6.6163708, lng:100.0662124, img:''},
+    {name:'ตลาดนัดควนโดน', desc:'อ.ควนโดน • ตลาดนัดวันพุธ', lat:6.785771, lng:100.081696, img:''},
+    {name:'ตลาดสามแยกนิคมควนกาหลง', desc:'อ.ควนกาหลง', lat:6.8357686, lng:100.0998961, img:''},
+    {name:'ตลาดนัดครูซิ้ม', desc:'อ.ท่าแพ • เสาร์บ่าย', lat:6.8240079, lng:99.933346, img:''},
+    {name:'Twilight Market', desc:'อ.ละงู • ตลาดโต้รุ่ง', lat:6.8788818, lng:99.7831954, img:''},
+    {name:'Bara Market', desc:'อ.ละงู (ปากบารา) • ริมทะเล', lat:6.850281, lng:99.736183, img:''},
+    {name:'ตลาดสดเทศบาลตำบลทุ่งหว้า', desc:'อ.ทุ่งหว้า • อาหารทะเลสดจากเรือ', lat:7.1046602, lng:99.7547421, img:''},
+    {name:'ตลาดครูเทพ (มะนัง)', desc:'อ.มะนัง', lat:6.998615, lng:99.9135267, img:''},
+    {name:'หลาดสวนไผ่ ผัง 7', desc:'อ.มะนัง • ตลาดนัดวันอาทิตย์', lat:6.9460201, lng:99.9184316, img:''}
+  ]},
+  {id:'fashion', icon:'👕', label:{th:'เสื้อผ้า / แฟชั่น'}, shops:[
+    {name:'ร้านสายชลแฟชั่น', desc:'อ.เมืองสตูล', lat:6.6132125, lng:100.0660337, img:''},
+    {name:'สีสันบาติก (Si San Batik)', desc:'อ.เมืองสตูล • ผ้าบาติกสั่งทำ', lat:6.6132574, lng:100.0661108, img:''},
+    {name:'สตูลปาเต๊ะ', desc:'อ.เมืองสตูล • ผ้าปาเต๊ะ', lat:6.613368, lng:100.0663348, img:''},
+    {name:'ร้านผ้าฟาติมะฮ์ แฟชั่นมุสลิม', desc:'อ.เมืองสตูล (ฉลุง)', lat:6.7186442, lng:100.0670798, img:''},
+    {name:'Vs Shop', desc:'อ.เมืองสตูล (ฉลุง)', lat:6.7270394, lng:100.0628813, img:''},
+    {name:'ร้านมาร์ลองยีนส์', desc:'อ.ละงู • กางเกงยีนส์วินเทจ', lat:6.888562, lng:99.8027407, img:''}
+  ]},
+  {id:'mobile', icon:'📱', label:{th:'ร้านมือถือ / ไอที'}, shops:[
+    {name:'เจนาย สาขาบิ๊กซีสตูล', desc:'อ.เมืองสตูล • มือถือ/ผ่อน 0%', lat:6.6385237, lng:100.0701818, img:''},
+    {name:'The 9 Accessories & Gadgets', desc:'อ.เมืองสตูล', lat:6.638249, lng:100.0704065, img:''},
+    {name:'Samsung Shop สตูล', desc:'อ.เมืองสตูล', lat:6.6382293, lng:100.0704411, img:''},
+    {name:'ริวคอมเซอร์วิซ (ซ่อม iPhone/iPad)', desc:'อ.เมืองสตูล • รับซ่อมเฉพาะทาง', lat:6.6322168, lng:100.0701958, img:''},
+    {name:'สตูลโมบาย', desc:'อ.เมืองสตูล', lat:6.6174401, lng:100.0740589, img:''},
+    {name:'คลังไอทีโฟนสตูล (รับซ่อมมือถือ)', desc:'อ.เมืองสตูล', lat:6.7044447, lng:100.0659577, img:''},
+    {name:'ร้านแฮปปี้โฟน', desc:'อ.ละงู', lat:6.8686535, lng:99.7808478, img:''},
+    {name:'ร้านซ่อม iPhone และมือถือทุกรุ่น', desc:'อ.ควนโดน', lat:6.7835046, lng:100.0781797, img:''}
+  ]},
+  {id:'laundry', icon:'🧺', label:{th:'ร้านซักผ้า / สะดวกซัก'}, shops:[
+    {name:'CARTOON Wash & Dry ซอยแม่เนียน', desc:'อ.เมืองสตูล • เปิด 24 ชม.', lat:6.6234656, lng:100.0694437, img:''},
+    {name:'Seaman Wash & Dry', desc:'อ.เมืองสตูล • เปิด 24 ชม.', lat:6.6222568, lng:100.0676389, img:''},
+    {name:'The Wash ใกล้ รพ.สตูล', desc:'อ.เมืองสตูล • หยอดเหรียญ', lat:6.6161776, lng:100.0694904, img:''},
+    {name:'อควา ซัก อบ หยอดเหรียญ 24 ชม.', desc:'อ.เมืองสตูล', lat:6.6156881, lng:100.0736904, img:''},
+    {name:'Go Clean ร้านสะดวกซัก', desc:'อ.เมืองสตูล', lat:6.6194425, lng:100.069887, img:''},
+    {name:'CARTOON Wash & Dry ละงู', desc:'อ.ละงู • เปิด 24 ชม.', lat:6.8717899, lng:99.7820930, img:''},
+    {name:'สี่โฟร์ สะดวกซัก 24 ชม.', desc:'อ.ควนกาหลง', lat:6.859367, lng:99.9986446, img:''}
+  ]},
+  {id:'gasstation', icon:'⛽', label:{th:'ปั๊มน้ำมัน'}, shops:[
+    {name:'PTT Station (สายตรวกวนกำธร)', desc:'อ.เมืองสตูล • 24 ชม. + 7-Eleven', lat:6.697755, lng:100.06678, img:''},
+    {name:'ปั๊มน้ำมัน PT ฉลุง', desc:'อ.เมืองสตูล • 24 ชม.', lat:6.7350189, lng:100.066834, img:''},
+    {name:'ปั๊มบางจากนกน้ำ ควนโพธิ์', desc:'อ.เมืองสตูล', lat:6.7459066, lng:100.0344785, img:''},
+    {name:'Susco ควนโดน', desc:'อ.ควนโดน', lat:6.7840482, lng:100.0782688, img:''},
+    {name:'PTT ควนกาหลง (ซอย 9)', desc:'อ.ควนกาหลง • มี EV Charging', lat:6.8472212, lng:100.1065015, img:''},
+    {name:'PTT ควนกาหลง (ซอย 4)', desc:'อ.ควนกาหลง', lat:6.8620879, lng:100.0064173, img:''},
+    {name:'PTT ท่าแพ (สหกรณ์การเกษตร)', desc:'อ.ท่าแพ', lat:6.7925591, lng:99.9619082, img:''},
+    {name:'ปั๊มน้ำมัน ท่าแพ', desc:'อ.ท่าแพ', lat:6.805265, lng:99.945896, img:''},
+    {name:'PTT ละงู (PTT La-ngu Petroleum)', desc:'อ.ละงู • ปั๊มหลักมีร้านอาหาร', lat:6.8854461, lng:99.8091478, img:''},
+    {name:'ปั๊ม PT ละงู 1', desc:'อ.ละงู', lat:7.0183742, lng:99.8462324, img:''},
+    {name:'Bangchak ทุ่งหว้า (สหกรณ์การเกษตร)', desc:'อ.ทุ่งหว้า • 24 ชม.', lat:7.090925, lng:99.767127, img:''},
+    {name:'PT ทุ่งหว้า (พ.มณีสรรค์)', desc:'อ.ทุ่งหว้า', lat:7.0841356, lng:99.7675855, img:''},
+    {name:'ปั๊มน้ำมัน ยาบล มะนัง', desc:'อ.มะนัง • 24 ชม.', lat:7.0555002, lng:99.9021645, img:''},
+    {name:'ปั๊มน้ำมัน มะนัง (King)', desc:'อ.มะนัง', lat:6.975767, lng:99.917701, img:''}
+  ]}
+];
+ 
+let userLoc = null;
+ 
+function haversineKm(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lon2-lon1) * Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+ 
+function requestUserLocation(){
+  return new Promise((resolve)=>{
+    if(!navigator.geolocation){ resolve(null); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos)=>{ userLoc = {lat:pos.coords.latitude, lng:pos.coords.longitude}; resolve(userLoc); },
+      ()=>{ resolve(null); },
+      {enableHighAccuracy:true, timeout:8000, maximumAge:120000}
+    );
+  });
+}
+ 
+function renderNavCategories(){
+  const grid = document.getElementById('navCatGrid'); grid.innerHTML='';
+  NAV_CATEGORIES.forEach(cat=>{
+    const card = document.createElement('div');
+    card.className = 'cat-card';
+    card.innerHTML = `<div class="cicon">${cat.icon}</div><div class="ctitle">${tr(cat.label)}</div><div class="ccount">${cat.shops.length} ร้าน</div>`;
+    card.addEventListener('click', ()=>openNavShops(cat.id));
+    grid.appendChild(card);
+  });
+}
+ 
+async function openNavShops(catId){
+  const cat = NAV_CATEGORIES.find(c=>c.id===catId);
+  if(!cat) return;
+  document.getElementById('navShopIcon').textContent = cat.icon;
+  document.getElementById('navShopCatTitle').textContent = tr(cat.label);
+  showScreen('screen-nav-shops');
+  const list = document.getElementById('navShopList');
+  list.innerHTML = '<div style="text-align:center;color:var(--ink-soft);font-size:13px;padding:16px 0;">📍 กำลังเรียงร้านที่ใกล้คุณที่สุด...</div>';
+  if(!userLoc) await requestUserLocation();
+  renderShopList(cat);
+}
+ 
+function renderShopList(cat){
+  const list = document.getElementById('navShopList'); list.innerHTML='';
+  const shops = cat.shops.slice();
+  if(userLoc){
+    shops.forEach(s=>{ s._dist = haversineKm(userLoc.lat, userLoc.lng, s.lat, s.lng); });
+    shops.sort((a,b)=> a._dist - b._dist);
+  }
+  shops.forEach(shop=>{
+    const card = document.createElement('div');
+    card.className = 'shop-card';
+    const thumb = shop.img
+      ? `<img src="${shop.img}" alt="${shop.name}">`
+      : cat.icon;
+    const distHtml = (shop._dist!=null) ? `<div class="shop-dist">📍 ห่างจากคุณ ${shop._dist.toFixed(1)} กม.</div>` : '';
+    card.innerHTML = `<div class="shop-thumb">${thumb}</div><div class="shop-body"><div class="shop-name">${shop.name}</div><div class="shop-desc">${shop.desc||''}</div>${distHtml}</div><div class="shop-go">🧭</div>`;
+    card.addEventListener('click', ()=>window.open(gmapsNavUrl(shop), '_blank'));
+    list.appendChild(card);
+  });
+}
+ 
+function gmapsNavUrl(shop){
+  if(shop.lat && shop.lng){
+    return `https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}`;
+  }
+  const q = encodeURIComponent(shop.name + ' สตูล');
+  return `https://www.google.com/maps/dir/?api=1&destination=${q}`;
+}
+ 
+document.getElementById('openNavBtn').addEventListener('click', ()=>{
+  renderNavCategories();
+  showScreen('screen-nav-categories');
+  if(!userLoc) requestUserLocation();
+});
+document.getElementById('navCatBackBtn').addEventListener('click', enterHub);
+document.getElementById('navShopBackBtn').addEventListener('click', ()=>{
+  renderNavCategories();
+  showScreen('screen-nav-categories');
+});
 
 function wcThumb(hash1, hash2, filename){
   const enc = encodeURI(filename);
@@ -1064,7 +1339,7 @@ const DRAG_ITEMS = [
   {id:1, label:"ถ้ำเลสเตโกดอน", art:'cave1', zone:"cave1"},
   {id:2, label:"พิพิธภัณฑ์อุทยานธรณีโลกสตูล", art:'museum', zone:"museum"},
   {id:3, label:"ถ้ำภูผาเพชร", art:'cave5', zone:"cave5"},
-  {id:4, label:"ถ้ำทะลุ", art:'cave3', zone:"cave3"},
+  {id:4, label:"ถ้ำทะลุ", art:'cave4', zone:"cave4"},
   {id:5, label:"หินงอกหินย้อยละงู", art:'cave3', zone:"cave3"},
   {id:6, label:"ปราสาทหินพันยอด", art:'cave2', zone:"cave2"},
   {id:7, label:"เกาะหลีเป๊ะ", art:'lipe', zone:"lipe"},
@@ -1093,21 +1368,21 @@ function renderDragMap(){
   Object.values(dState.markers).forEach(m => m.remove());
   dState.markers = {};
 
-  DRAG_LEAFLET_ZONES.forEach(z => {
+  DRAG_LEAFLET_ZONES.forEach((z, idx) => {
     const customIcon = L.divIcon({ className: 'leaflet-zone-pin-wrap', html: `<div class="zone-pin">📍</div>`, iconSize: [35, 35], iconAnchor: [17, 17] });
     const marker = L.marker([z.lat, z.lng], {icon: customIcon}).addTo(dState.map);
-    marker.bindTooltip(z.name, {permanent: false, direction: 'top'});
+    marker.bindTooltip(`ตำแหน่งที่ ${idx+1}`, {permanent: false, direction: 'top'});
     marker.on('click', () => {
       if(dState.submitted) return;
       if(dState.placements[z.id]){
-        // pick it back up (put back in tray)
         const itemId = dState.placements[z.id];
         delete dState.placements[z.id];
         const item = DRAG_ITEMS.find(i=>i.id===itemId);
         if(item && !dState.items.find(i=>i.id===itemId)) dState.items.push(item);
         marker.setIcon(customIcon);
+        marker.setTooltipContent(`ตำแหน่งที่ ${idx+1}`);
       } else if(dState.selected !== null) {
-        placeItem(dState.selected, z.id, marker, customIcon);
+      placeItem(dState.selected, z.id, marker, customIcon);
       }
     });
     dState.markers[z.id] = marker;
@@ -1123,6 +1398,7 @@ function placeItem(itemId, zoneId, marker){
   dState.placements[zoneId] = itemId;
   const placedIcon = L.divIcon({ className: 'leaflet-zone-pin-wrap', html: `<div class="zone-pin filled thumbfilled">${svgIconHtml(item.art)}</div>`, iconSize: [38, 38], iconAnchor: [19, 19] });
   marker.setIcon(placedIcon);
+  marker.setTooltipContent(`วางไว้: ${item.label}`); 
   dState.items = dState.items.filter(i=>i.id!==itemId);
   dState.selected = null;
   renderDragTray(); updateDragHud();
@@ -1167,6 +1443,7 @@ document.getElementById('dragSubmitBtn').addEventListener('click', ()=>{
       iconSize: [38, 38], iconAnchor: [19, 19]
     });
     marker.setIcon(resultIcon);
+    marker.setTooltipContent(isCorrect ? `${z.name} ✅ ถูกต้อง!` : `${z.name} — คุณวาง "${item.label}" ผิดตำแหน่ง ❌`);
   });
   document.getElementById('dragScoreChip').textContent = `⭐ ${dState.score}`;
   document.getElementById('dragSubmitWrap').style.display='none';
