@@ -121,6 +121,17 @@ input[type="text"]:focus{border-color:var(--sea-turquoise);}
 .rating-btn{flex:1; aspect-ratio:1/1; border-radius:12px; border:2px solid var(--limestone-dark); background:#fff; font-family:'Kanit',sans-serif; font-weight:700; font-size:15px; color:var(--ink-soft); cursor:pointer;}
 .rating-btn.selected{background:linear-gradient(135deg, var(--fossil-amber), #C98A2E); color:#3A2400; border-color:var(--fossil-amber);}
 .rating-scale-labels{display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink-soft); margin-top:5px; font-family:'Sarabun',sans-serif;}
+.kpa-legend{background:#fff; border:1.5px solid var(--limestone-dark); border-radius:12px; padding:10px 14px; font-size:11.5px; color:var(--ink-soft); line-height:1.7; margin:10px 0 4px;}
+.kpa-progress{display:flex; gap:6px; margin:12px 0 4px;}
+.kpa-progress-seg{flex:1; height:6px; border-radius:999px; background:var(--limestone-dark);}
+.kpa-progress-seg.done{background:#3FA65C;}
+.kpa-progress-seg.active{background:var(--fossil-amber);}
+.kpa-part-title{font-family:'Kanit',sans-serif; font-weight:800; font-size:17px; color:var(--ink); margin-top:10px; display:flex; align-items:center; gap:8px;}
+.kpa-part-badge{background:var(--cave-deep); color:var(--fossil-amber); font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px;}
+.kpa-summary-row{display:flex; justify-content:space-between; align-items:center; background:#fff; border:1.5px solid var(--limestone-dark); border-radius:12px; padding:11px 15px; margin-bottom:8px; font-family:'Kanit',sans-serif; font-size:13.5px; color:var(--ink);}
+.kpa-summary-row b{color:var(--coral); font-size:15px;}
+.kpa-radar-wrap{background:#fff; border:1.5px solid var(--limestone-dark); border-radius:16px; padding:14px 8px; margin-top:10px;}
+.kpa-open-wrap textarea{width:100%; padding:13px 16px; border-radius:14px; border:2px solid var(--limestone-dark); background:#fff; font-family:'Sarabun',sans-serif; font-size:15px; color:var(--ink); outline:none; resize:vertical; margin-top:6px;}
 
 .all-stamps-overlay{position:fixed; inset:0; background:rgba(11,53,56,0.78); display:none; align-items:center; justify-content:center; z-index:999; padding:20px;}
 .all-stamps-overlay.show{display:flex;}
@@ -324,6 +335,7 @@ input[type="text"]:focus{border-color:var(--sea-turquoise);}
         </div>
       </div>
       <button class="btn btn-ghost" id="openSurveyBtn" style="margin-top:16px;">📝 แบบประเมินความพึงพอใจ</button>
+      <button class="btn btn-ghost" id="openKpaBtn" style="margin-top:10px;">📋 แบบประเมิน KPA (ความรู้ / กระบวนการ / เจตคติ)</button>
       <div class="stamp-section" id="stampSection">
         <div class="stamp-header">
           <h3>📮 สมุดสะสมแสตมป์</h3>
@@ -333,9 +345,29 @@ input[type="text"]:focus{border-color:var(--sea-turquoise);}
         <div class="stamp-grid" id="stampGrid"></div>
       </div>
       <div class="leaderboard" style="margin-top:20px;">
+        <button class="btn btn-ghost" id="referencesBtn" style="margin-top:0; margin-bottom:14px;">📚 แหล่งอ้างอิงข้อมูลที่ใช้ในคำถาม</button>
         <h3 id="lbTitle">🥇 กระดานผู้นำรวมทุกภารกิจ</h3>
         <div id="lbListHub"></div>
       </div>
+    </div>
+
+    <!-- REFERENCES SCREEN -->
+    <div class="screen" id="screen-references">
+      <div class="field-label">📚 แหล่งอ้างอิงข้อมูลที่ใช้ในคำถามและเนื้อหา</div>
+      <div style="background:#fff; border:2px solid var(--limestone-dark); border-radius:14px; padding:16px; margin-top:10px; font-size:13.5px; line-height:1.9; color:var(--ink);">
+        <ol style="padding-left:20px; margin:0;">
+          <li>UNESCO Global Geoparks. "Satun UNESCO Global Geopark, Thailand." <i>UNESCO</i>, United Nations Educational, Scientific and Cultural Organization, <a href="https://en.unesco.org/global-geoparks/satun" target="_blank" rel="noopener">en.unesco.org/global-geoparks/satun</a>.</li>
+          <li>อุทยานธรณีโลกสตูล. "ข้อมูลอุทยานธรณีโลกสตูล." <i>Satun Geopark</i>, กรมทรัพยากรธรณี, <a href="https://satun-geopark.org" target="_blank" rel="noopener">satun-geopark.org</a>.</li>
+          <li>กรมทรัพยากรธรณี กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม. "อุทยานธรณีสตูล (Satun Geopark)." <i>Department of Mineral Resources</i>, <a href="https://www.dmr.go.th" target="_blank" rel="noopener">dmr.go.th</a>.</li>
+          <li>"Tarutao National Park." <i>Wikipedia, The Free Encyclopedia</i>, Wikimedia Foundation, <a href="https://en.wikipedia.org/wiki/Tarutao_National_Park" target="_blank" rel="noopener">en.wikipedia.org/wiki/Tarutao_National_Park</a>.</li>
+          <li>"Ko Lipe." <i>Wikipedia, The Free Encyclopedia</i>, Wikimedia Foundation, <a href="https://en.wikipedia.org/wiki/Ko_Lipe" target="_blank" rel="noopener">en.wikipedia.org/wiki/Ko_Lipe</a>.</li>
+          <li>"Satun Province." <i>Wikipedia, The Free Encyclopedia</i>, Wikimedia Foundation, <a href="https://en.wikipedia.org/wiki/Satun_province" target="_blank" rel="noopener">en.wikipedia.org/wiki/Satun_province</a>.</li>
+          <li>การท่องเที่ยวแห่งประเทศไทย (ททท.). "อุทยานธรณีโลกสตูล." <i>Tourism Authority of Thailand</i>, <a href="https://www.tourismthailand.org" target="_blank" rel="noopener">tourismthailand.org</a>.</li>
+          <li>องค์การบริหารการพัฒนาพื้นที่พิเศษเพื่อการท่องเที่ยวอย่างยั่งยืน (อพท.). "คู่มือท่องเที่ยวอุทยานธรณีโลกสตูล." <i>DASTA</i>, <a href="https://www.dasta.or.th" target="_blank" rel="noopener">dasta.or.th</a>.</li>
+        </ol>
+        <p style="margin-top:14px; font-size:12px; color:var(--ink-soft);">หมายเหตุ: เนื้อหาคำถามในเกมสรุปและเรียบเรียงใหม่จากแหล่งข้อมูลข้างต้นเพื่อการศึกษา มิใช่การคัดลอกข้อความต้นฉบับ</p>
+      </div>
+      <div class="back-row"><button class="btn btn-ghost" id="referencesBackBtn">‹ กลับสู่ศูนย์ภารกิจ</button></div>
     </div>
 
     <!-- NAVIGATE: CATEGORY LIST -->
@@ -383,6 +415,29 @@ input[type="text"]:focus{border-color:var(--sea-turquoise);}
         <div class="score-label" style="margin-top:8px; font-size:16px;" id="surveyThanksText">ขอบคุณสำหรับความคิดเห็นนะครับ!</div>
       </div>
       <button class="btn btn-primary" id="surveyThanksBackBtn" style="margin-top:20px;">‹ กลับสู่ศูนย์ภารกิจ</button>
+    </div>
+
+    <!-- KPA ASSESSMENT -->
+    <div class="screen" id="screen-kpa">
+      <div class="kpa-part-title"><span id="kpaPartEmoji">🧠</span><span id="kpaPartTitle">ส่วนที่ 1: K (Knowledge) ความรู้</span></div>
+      <div class="kpa-progress" id="kpaProgress"></div>
+      <div class="kpa-legend">โปรดให้คะแนนความเห็นด้วยกับข้อความแต่ละข้อ:<br>5 = เห็นด้วยมากที่สุด &nbsp;·&nbsp; 4 = เห็นด้วย &nbsp;·&nbsp; 3 = ปานกลาง &nbsp;·&nbsp; 2 = ไม่ค่อยเห็นด้วย &nbsp;·&nbsp; 1 = ไม่เห็นด้วย</div>
+      <div id="kpaItemsWrap"></div>
+      <div class="survey-q kpa-open-wrap">
+        <div class="qlabel" id="kpaOpenLabel">16. ...</div>
+        <textarea id="kpaOpenInput" rows="3" placeholder="พิมพ์คำตอบของหนูที่นี่..."></textarea>
+      </div>
+      <div id="kpaErr" style="display:none; color:var(--coral); font-size:12.5px; margin-top:10px; font-family:'Kanit',sans-serif;">กรุณาตอบให้ครบทุกข้อ (1-15) ก่อนไปต่อนะครับ</div>
+      <button class="btn btn-primary" id="kpaNextBtn">ถัดไป →</button>
+      <button class="btn btn-ghost" id="kpaBackBtn">‹ กลับสู่ศูนย์ภารกิจ</button>
+    </div>
+
+    <!-- KPA RESULT (SPIDER GRAPH) -->
+    <div class="screen" id="screen-kpa-result">
+      <div class="field-label" style="margin-top:0;">📊 ผลการประเมิน KPA ของหนู</div>
+      <div class="kpa-radar-wrap" id="kpaRadarWrap"></div>
+      <div id="kpaSummary" style="margin-top:14px;"></div>
+      <button class="btn btn-primary" id="kpaResultDoneBtn" style="margin-top:16px;">‹ กลับสู่ศูนย์ภารกิจ</button>
     </div>
 
     <!-- GAME 1: QUIZ -->
@@ -687,6 +742,7 @@ const NAV_CATEGORIES = [
     {name:'CARTOON Wash & Dry ละงู', desc:'อ.ละงู • เปิด 24 ชม.', lat:6.8717899, lng:99.7820930, img:''},
     {name:'สี่โฟร์ สะดวกซัก 24 ชม.', desc:'อ.ควนกาหลง', lat:6.859367, lng:99.9986446, img:''}
   ]},
+ 
   {id:'gasstation', icon:'⛽', label:{th:'ปั๊มน้ำมัน'}, shops:[
     {name:'PTT Station (สายตรวกวนกำธร)', desc:'อ.เมืองสตูล • 24 ชม. + 7-Eleven', lat:6.697755, lng:100.06678, img:''},
     {name:'ปั๊มน้ำมัน PT ฉลุง', desc:'อ.เมืองสตูล • 24 ชม.', lat:6.7350189, lng:100.066834, img:''},
@@ -979,7 +1035,10 @@ document.getElementById('allStampsCloseBtn').addEventListener('click', ()=>{
   document.getElementById('allStampsOverlay').classList.remove('show');
 });
 document.getElementById('backHubBtn').addEventListener('click', enterHub);
-const SURVEY_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbwFf9yVdeam5JGKIu6-x97wUtg2e0lqIFvlmsJ5whf-e8rnkh04rZ8Hg66KKCwQ2dtXCw/exec'
+document.getElementById('changePlayerBtn2').addEventListener('click', ()=>{ showScreen('screen-start'); });
+document.getElementById('referencesBtn').addEventListener('click', ()=>{ showScreen('screen-references'); });
+document.getElementById('referencesBackBtn').addEventListener('click', enterHub);
+const SURVEY_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbwCji3c-C2EvC3-Zua-uR8bWFpxUMkaL4mbUcCgJWTrK_cb7Z7tbXWRcfKDI6ATdx4x/exec'
 
 const SURVEY_QUESTIONS = [
   {id:'q1', label:{th:'1. นวัตกรรมนี้ช่วยให้เข้าใจเนื้อหาเกี่ยวกับธรณีวิทยาได้ดีขึ้น'}},
@@ -1043,12 +1102,21 @@ document.getElementById('submitSurveyBtn').addEventListener('click', async ()=>{
     return;
   }
   const payload = {
-    name: player.name || '',
-    avatar: player.avatar || '',
-    benefit1: b1, benefit2: b2, benefit3: b3,
+    q1: surveyState.q1,
+    q2: surveyState.q2,
+    q3: surveyState.q3,
+    q4: surveyState.q4,
+    q5: surveyState.q5,
+    q6: surveyState.q6,
+    q7: surveyState.q7,
+    q8: surveyState.q8,
+    q9: surveyState.q9,
+    q10: surveyState.q10,
+    benefit1: b1,
+    benefit2: b2,
+    benefit3: b3,
     comment: document.getElementById('surveyComment').value.trim()
   };
-  SURVEY_QUESTIONS.forEach(q=>{ payload[q.id] = surveyState[q.id]; });
   const submitBtn = document.getElementById('submitSurveyBtn');
   submitBtn.disabled = true; submitBtn.textContent = 'กำลังส่ง...';
   try{
@@ -1070,6 +1138,234 @@ document.getElementById('submitSurveyBtn').addEventListener('click', async ()=>{
   submitBtn.disabled = false; submitBtn.textContent = 'ส่งแบบประเมิน ✅';
   showScreen('screen-survey-thanks');
 });
+
+/* ============== KPA ASSESSMENT (K / P / A) ============== */
+/* ตั้งค่า URL ของ Google Apps Script Web App ที่ deploy แล้วตรงนี้ (ดูวิธีทำในไฟล์ kpa-apps-script.gs ที่แนบมาให้) */
+const KPA_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbxV1OL-y6fy-HY0Jwwhk1c0NRYZB_sNsaEHFOe_64M2cjQx_N9VmNRMZwxlkrhsaYH7zQ/exec';
+
+const KPA_QUESTIONS = {
+  K: {
+    title: 'K (Knowledge) ความรู้', emoji: '🧠',
+    items: [
+      'ข้าพเจ้ามีความเข้าใจเกี่ยวกับแนวคิดและความสำคัญของอุทยานธรณีโลกสตูลมากขึ้น',
+      'ข้าพเจ้าสามารถอธิบายลักษณะเด่นของแหล่งเรียนรู้แต่ละแห่งในอุทยานธรณีโลกสตูลได้',
+      'ข้าพเจ้าเข้าใจความเชื่อมโยงระหว่างธรณีวิทยา ธรรมชาติ และวิถีชีวิตของชุมชนในพื้นที่',
+      'ข้าพเจ้ามีความรู้เกี่ยวกับฟอสซิลและธรณีวิทยาของจังหวัดสตูลเพิ่มขึ้น',
+      'ข้าพเจ้าสามารถอธิบายคุณค่าและความสำคัญของซากดึกดำบรรพ์ต่อการศึกษาประวัติศาสตร์โลกได้',
+      'ข้าพเจ้าเข้าใจสาเหตุที่ทำให้พื้นที่แห่งนี้ได้รับการยกย่องเป็นอุทยานธรณีโลก',
+      'ข้าพเจ้าเข้าใจวิถีชีวิตและภูมิปัญญาของคนในชุมชนบ้านบ่อเจ็ดลูกมากขึ้น',
+      'ข้าพเจ้ามองเห็นความสำคัญของการถ่ายทอดองค์ความรู้จากผู้สูงอายุสู่คนรุ่นใหม่',
+      'ข้าพเจ้าสามารถเชื่อมโยงเรื่องเล่าของชุมชนกับแหล่งเรียนรู้ทางธรณีวิทยาได้',
+      'ข้าพเจ้าเข้าใจบทบาทของเยาวชนในการอนุรักษ์อุทยานธรณีโลกและทรัพยากรของชุมชน',
+      'ข้าพเจ้ามีความรู้เกี่ยวกับแนวทางการอนุรักษ์ฟอสซิลและแหล่งธรณีวิทยาอย่างเหมาะสม',
+      'ข้าพเจ้าเข้าใจว่าการอนุรักษ์อุทยานธรณีโลกต้องอาศัยความร่วมมือระหว่างโรงเรียนและชุมชน',
+      'ข้าพเจ้าสามารถนำองค์ความรู้ที่ได้รับไปใช้ในการเรียนหรือการศึกษานอกห้องเรียนได้',
+      'ข้าพเจ้าสามารถถ่ายทอดองค์ความรู้เกี่ยวกับอุทยานธรณีโลกสตูลให้ผู้อื่นเข้าใจได้',
+      'โดยภาพรวม Living Geopark Knowledge Hub ช่วยเพิ่มองค์ความรู้ของข้าพเจ้าเกี่ยวกับอุทยานธรณีโลกสตูล ฟอสซิล และภูมิปัญญาชุมชน'
+    ],
+    open: 'หลังจากเรียนรู้ผ่าน Living Geopark Knowledge Hub วันนี้ หนูได้รับองค์ความรู้ใหม่อะไรบ้าง และคิดว่าสามารถนำไปใช้ประโยชน์อย่างไร?'
+  },
+  P: {
+    title: 'P (Process) กระบวนการ', emoji: '⚙️',
+    items: [
+      'หนูสามารถสแกน QR Code เพื่อค้นหาข้อมูลได้ด้วยตนเอง',
+      'หนูสามารถหาคำตอบจากแผนที่ Geo Journey Satun ได้',
+      'หนูสังเกตข้อมูลจากภาพ แผนที่ หรือฟอสซิลได้ดี',
+      'หนูสามารถเลือกคำตอบจากข้อมูลที่อ่านหรือดูได้',
+      'หนูกล้าลองผิดลองถูกเมื่อทำกิจกรรม',
+      'เมื่อเจอคำถาม หนูพยายามหาคำตอบด้วยตัวเองก่อน',
+      'หนูสามารถใช้โทรศัพท์หรือแท็บเล็ตในการเรียนรู้ได้',
+      'หนูสนุกกับการเรียนรู้ผ่านเกมและการทำภารกิจ',
+      'หนูสามารถเก็บตราประทับ (Stamp Challenge) ได้ครบตามกิจกรรม',
+      'หนูคิดว่าการเรียนแบบลงมือทำช่วยให้เข้าใจมากขึ้น',
+      'การสแกน QR Code ช่วยให้หนูค้นหาข้อมูลได้สะดวก',
+      'หนูสามารถใช้ข้อมูลจาก Geo Journey Satun เพื่อหาคำตอบได้',
+      'การทำ QR Code Game ช่วยให้หนูได้ฝึกคิดและแก้ปัญหา',
+      'การสะสมตราประทับ (Stamp Challenge) ทำให้หนูอยากเรียนรู้ในแต่ละฐานให้ครบ',
+      'หนูสามารถนำข้อมูลจาก Geo Journey Satun และ QR Code มาใช้ตอบคำถามในเกมได้'
+    ],
+    open: 'หนูใช้วิธีอะไรในการหาคำตอบของเกม?'
+  },
+  A: {
+    title: 'A (Attitude) เจตคติ', emoji: '💛',
+    items: [
+      'เสียงจากคนในชุมชนทำให้หนูรู้สึกสนใจอุทยานธรณีโลกสตูลมากขึ้น',
+      'หนูรู้สึกภูมิใจที่จังหวัดสตูลมีอุทยานธรณีโลก',
+      'หนูเห็นว่าธรรมชาติ ฟอสซิล และสถานที่ต่าง ๆ ในสตูลเป็นสิ่งที่มีคุณค่า',
+      'หลังจากฟังเรื่องราว หนูอยากช่วยดูแลธรรมชาติของบ้านเรา',
+      'เพลงของโครงการทำให้หนูสนุกและอยากเรียนรู้มากขึ้น',
+      'หนูอยากกลับมาเรียนรู้ที่อุทยานธรณีโลกสตูลอีกครั้ง',
+      'หนูอยากชวนเพื่อนหรือคนในครอบครัวมาเรียนรู้ที่นี่',
+      'หนูคิดว่าทุกคนควรช่วยกันรักษาธรรมชาติและฟอสซิล',
+      'หนูอยากเป็นส่วนหนึ่งในการดูแลอุทยานธรณีโลกสตูล',
+      'หลังจบกิจกรรม หนูรักบ้านเกิดของตัวเองมากขึ้น',
+      'หนูตั้งใจฟังเรื่องราวที่ถ่ายทอดผ่าน Community Voice',
+      'หนูเข้าใจว่าทำไมอุทยานธรณีโลกสตูลจึงควรได้รับการอนุรักษ์',
+      'หนูสามารถจดจำเรื่องราวหรือข้อคิดที่ได้จาก Community Voice ได้',
+      'เพลงหรือกิจกรรมจาก QR Code Entertainment ช่วยให้หนูเข้าใจเรื่องอุทยานธรณีโลกสตูลมากขึ้น',
+      'หลังจากทำกิจกรรม หนูมั่นใจว่าสามารถเล่าเรื่องอุทยานธรณีโลกสตูลให้ผู้อื่นฟังได้'
+    ],
+    open: 'หลังจากทำกิจกรรมวันนี้ หนูจะช่วยดูแลอุทยานธรณีโลกสตูลอย่างไร?'
+  }
+};
+const KPA_ORDER = ['K','P','A'];
+let kpaState = null;
+
+document.getElementById('openKpaBtn').addEventListener('click', ()=>{
+  kpaState = {
+    partIdx: 0,
+    answers: { K: Array(15).fill(null), P: Array(15).fill(null), A: Array(15).fill(null) },
+    opens: { K:'', P:'', A:'' }
+  };
+  showScreen('screen-kpa');
+  renderKpaPart();
+});
+
+function renderKpaProgress(){
+  const wrap = document.getElementById('kpaProgress'); wrap.innerHTML='';
+  KPA_ORDER.forEach((k,i)=>{
+    const seg = document.createElement('div');
+    seg.className = 'kpa-progress-seg' + (i < kpaState.partIdx ? ' done' : (i === kpaState.partIdx ? ' active' : ''));
+    wrap.appendChild(seg);
+  });
+}
+
+function renderKpaPart(){
+  const partKey = KPA_ORDER[kpaState.partIdx];
+  const part = KPA_QUESTIONS[partKey];
+  document.getElementById('kpaPartEmoji').textContent = part.emoji;
+  document.getElementById('kpaPartTitle').textContent = `ส่วนที่ ${kpaState.partIdx+1}/3: ${part.title}`;
+  renderKpaProgress();
+  document.getElementById('kpaErr').style.display = 'none';
+
+  const wrap = document.getElementById('kpaItemsWrap'); wrap.innerHTML='';
+  part.items.forEach((q,i)=>{
+    const div = document.createElement('div'); div.className='survey-q';
+    const currentVal = kpaState.answers[partKey][i];
+    const row = [1,2,3,4,5].map(n=>`<button type="button" class="rating-btn${currentVal===n?' selected':''}" data-i="${i}" data-val="${n}">${n}</button>`).join('');
+    div.innerHTML = `<div class="qlabel">${i+1}. ${q}</div><div class="rating-row">${row}</div><div class="rating-scale-labels"><span>ไม่เห็นด้วย</span><span>เห็นด้วยมากที่สุด</span></div>`;
+    wrap.appendChild(div);
+  });
+
+  document.getElementById('kpaOpenLabel').textContent = `16. ${part.open}`;
+  document.getElementById('kpaOpenInput').value = kpaState.opens[partKey] || '';
+  document.getElementById('kpaNextBtn').textContent = kpaState.partIdx < 2 ? 'ถัดไป →' : 'ส่งแบบประเมิน ✅';
+}
+
+document.getElementById('kpaItemsWrap').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.rating-btn'); if(!btn) return;
+  const partKey = KPA_ORDER[kpaState.partIdx];
+  const i = parseInt(btn.dataset.i), val = parseInt(btn.dataset.val);
+  kpaState.answers[partKey][i] = val;
+  const wrap = document.getElementById('kpaItemsWrap');
+  wrap.querySelectorAll(`.rating-btn[data-i="${i}"]`).forEach(b=>{
+    b.classList.toggle('selected', parseInt(b.dataset.val) === val);
+  });
+  document.getElementById('kpaErr').style.display = 'none';
+});
+document.getElementById('kpaOpenInput').addEventListener('input', (e)=>{
+  kpaState.opens[KPA_ORDER[kpaState.partIdx]] = e.target.value;
+});
+document.getElementById('kpaBackBtn').addEventListener('click', ()=>{
+  if(confirm('ออกจากแบบประเมิน คำตอบที่ทำไว้ตอนนี้จะไม่ถูกบันทึกนะครับ ต้องการออกใช่ไหม?')) enterHub();
+});
+
+function kpaAvg(arr){ return arr.reduce((a,b)=>a+b,0) / arr.length; }
+
+document.getElementById('kpaNextBtn').addEventListener('click', async ()=>{
+  const partKey = KPA_ORDER[kpaState.partIdx];
+  if(kpaState.answers[partKey].some(v=>v===null)){
+    document.getElementById('kpaErr').style.display = 'block';
+    document.getElementById('kpaErr').scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  if(kpaState.partIdx < 2){
+    kpaState.partIdx++;
+    renderKpaPart();
+    window.scrollTo(0,0);
+  } else {
+    await submitKpa();
+  }
+});
+
+async function submitKpa(){
+  const btn = document.getElementById('kpaNextBtn');
+  btn.disabled = true; btn.textContent = 'กำลังส่ง...';
+  const payload = {
+    formType: 'KPA',
+    name: player.name || 'anon',
+    avatar: player.avatar || '',
+    timestamp: new Date().toISOString(),
+    K_answers: kpaState.answers.K, K_open: kpaState.opens.K, K_avg: kpaAvg(kpaState.answers.K),
+    P_answers: kpaState.answers.P, P_open: kpaState.opens.P, P_avg: kpaAvg(kpaState.answers.P),
+    A_answers: kpaState.answers.A, A_open: kpaState.opens.A, A_avg: kpaAvg(kpaState.answers.A)
+  };
+  try{
+    /* เก็บสำรองในเบราว์เซอร์ไว้ด้วย กันหลุดกรณีเน็ตมีปัญหา ไม่ใช่ที่เก็บหลัก */
+    await window.storage.set('kpa:'+Date.now()+'_'+(player.key||'anon'), JSON.stringify(payload), true);
+  }catch(err){}
+  if(KPA_ENDPOINT_URL){
+    try{
+      await fetch(KPA_ENDPOINT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(payload)
+      });
+    }catch(err){ /* no-cors ไม่สามารถอ่าน response ได้ ไม่ถือเป็น error ร้ายแรง */ }
+  } else {
+    console.warn('ยังไม่ได้ตั้งค่า KPA_ENDPOINT_URL — ข้อมูลแบบประเมินจะไม่ถูกส่งไปที่ Google Sheet (บันทึกสำรองไว้ในเบราว์เซอร์แล้ว)');
+  }
+  btn.disabled = false; btn.textContent = 'ส่งแบบประเมิน ✅';
+  showKpaResult(payload);
+}
+
+function buildKpaRadarSVG(axes){
+  const cx=150, cy=140, maxR=100, n=axes.length;
+  const angleFor = i => (Math.PI*2*i/n) - Math.PI/2;
+  const ptFor = (i, r) => { const a=angleFor(i); return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; };
+  let grid='';
+  for(let level=1; level<=5; level++){
+    const r = maxR*level/5;
+    const pts = axes.map((_,i)=>ptFor(i,r).join(',')).join(' ');
+    grid += `<polygon points="${pts}" fill="none" stroke="#E4D6B4" stroke-width="1"/>`;
+    const [lx,ly] = ptFor(0, r);
+    grid += `<text x="${lx-4}" y="${ly-3}" font-size="9" fill="#3E5A56" text-anchor="end" font-family="Kanit,sans-serif">${level}</text>`;
+  }
+  let axisLines='', labels='';
+  axes.forEach((ax,i)=>{
+    const [x,y] = ptFor(i, maxR);
+    axisLines += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E4D6B4" stroke-width="1"/>`;
+    const [lx,ly] = ptFor(i, maxR+30);
+    labels += `<text x="${lx}" y="${ly}" font-size="13" fill="#153331" text-anchor="middle" font-family="Kanit,sans-serif" font-weight="800">${ax.label}</text>`;
+    labels += `<text x="${lx}" y="${ly+16}" font-size="12" fill="#3FBFB5" text-anchor="middle" font-family="Kanit,sans-serif" font-weight="700">${ax.value.toFixed(2)} / 5</text>`;
+  });
+  const dataPts = axes.map((ax,i)=>ptFor(i, Math.max(2,(ax.value/5)*maxR)).join(',')).join(' ');
+  const dots = axes.map((ax,i)=>{ const [x,y]=ptFor(i,Math.max(2,(ax.value/5)*maxR)); return `<circle cx="${x}" cy="${y}" r="4.5" fill="#E8654B" stroke="#fff" stroke-width="1.5"/>`; }).join('');
+  return `<svg viewBox="0 0 300 300" style="width:100%; max-width:320px; display:block; margin:0 auto;">
+    ${grid}${axisLines}
+    <polygon points="${dataPts}" fill="rgba(217,164,65,0.4)" stroke="#D9A441" stroke-width="2.5"/>
+    ${dots}${labels}
+  </svg>`;
+}
+
+function showKpaResult(payload){
+  const axes = [
+    {label:'K ความรู้', value:payload.K_avg},
+    {label:'P กระบวนการ', value:payload.P_avg},
+    {label:'A เจตคติ', value:payload.A_avg}
+  ];
+  document.getElementById('kpaRadarWrap').innerHTML = buildKpaRadarSVG(axes);
+  const overall = (payload.K_avg + payload.P_avg + payload.A_avg) / 3;
+  document.getElementById('kpaSummary').innerHTML = `
+    <div class="kpa-summary-row"><span>🧠 K (ความรู้)</span><b>${payload.K_avg.toFixed(2)} / 5</b></div>
+    <div class="kpa-summary-row"><span>⚙️ P (กระบวนการ)</span><b>${payload.P_avg.toFixed(2)} / 5</b></div>
+    <div class="kpa-summary-row"><span>💛 A (เจตคติ)</span><b>${payload.A_avg.toFixed(2)} / 5</b></div>
+    <div class="kpa-summary-row" style="background:var(--cave-deep); border-color:var(--cave-deep);"><span style="color:#fff;">⭐ ค่าเฉลี่ยรวม</span><b style="color:var(--fossil-amber);">${overall.toFixed(2)} / 5</b></div>
+  `;
+  showScreen('screen-kpa-result');
+}
+document.getElementById('kpaResultDoneBtn').addEventListener('click', enterHub);
 
 /* ============== GAME 1: QUIZ ============== */
 const QUESTIONS = [
@@ -1167,7 +1463,7 @@ function renderLevelPicker(){
     const done = matchSession.levelScores[i]!==undefined;
     const btn=document.createElement('div'); btn.className='level-btn'+(done?' done':'');
     btn.innerHTML = `<div class="lnum">${i+1}</div><div><div class="ltitle">${tr(grid.title)}</div><div class="ldesc">${grid.pairs.length} คู่${done?' · เล่นแล้ว ⭐ '+matchSession.levelScores[i]:''}</div></div>${done?'<div class="ldone-check">✓</div>':''}`;
-    btn.addEventListener('click', ()=>startMatch(i));
+    btn.addEventListener('click', ()=>startMatchLevel(i));
     el.appendChild(btn);
   });
 }
