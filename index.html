@@ -1463,7 +1463,7 @@ function renderLevelPicker(){
     const done = matchSession.levelScores[i]!==undefined;
     const btn=document.createElement('div'); btn.className='level-btn'+(done?' done':'');
     btn.innerHTML = `<div class="lnum">${i+1}</div><div><div class="ltitle">${tr(grid.title)}</div><div class="ldesc">${grid.pairs.length} คู่${done?' · เล่นแล้ว ⭐ '+matchSession.levelScores[i]:''}</div></div>${done?'<div class="ldone-check">✓</div>':''}`;
-    btn.addEventListener('click', ()=>startMatchLevel(i));
+    btn.addEventListener('click', ()=>startMatch(i));
     el.appendChild(btn);
   });
 }
